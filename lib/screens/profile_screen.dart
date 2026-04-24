@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/role_switcher.dart';
+import '../services/mock_data_service.dart';
+import '../services/role_provider.dart';
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final emp = MockDataService.currentEmployee;
+    return SafeArea(child: SingleChildScrollView(
+      physics: const BouncingScrollPhysics(), padding: const EdgeInsets.all(20),
+      child: Column(children: [
+        const SizedBox(height: 20),
+        Container(width: 90, height: 90,
+          decoration: BoxDecoration(shape: BoxShape.circle,
+            gradient: const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]),
+            boxShadow: [BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.25), blurRadius: 24, offset: const Offset(0, 8))]),
+          child: Center(child: Text(emp.name.split(' ').map((n) => n[0]).take(2).join(),
+            style: GoogleFonts.poppins(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w700)))),
+        const SizedBox(height: 16),
+        Text(emp.name, style: GoogleFonts.poppins(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700)),
+        Text(emp.position, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
+        const SizedBox(height: 24),
+        // Role switcher
+        GlassCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Demo Mode', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 13)),
+          const SizedBox(height: 4),
+          Text('Switch Role', style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 12),
+          const Center(child: RoleSwitcher()),
+          const SizedBox(height: 8),
+          Consumer<RoleProvider>(builder: (ctx, rp, _) => Center(child: Text(
+            rp.isAdmin ? 'Viewing as Admin' : 'Viewing as Staff',
+            style: GoogleFonts.poppins(color: const Color(0xFF06B6D4), fontSize: 12, fontWeight: FontWeight.w500)))),
+        ])),
+        const SizedBox(height: 16),
+        // Info card
+        GlassCard(child: Column(children: [
+          _infoRow(Icons.badge_outlined, 'Employee ID', emp.employeeId),
+          _div(),
+          _infoRow(Icons.email_outlined, 'Email', emp.email),
+          _div(),
+          _infoRow(Icons.business, 'Division', emp.division),
+          _div(),
+          _infoRow(Icons.work_outline, 'Position', emp.position),
+          _div(),
+          _infoRow(Icons.attach_money, 'Monthly Salary', 'RM ${emp.monthlySalary.toStringAsFixed(0)}'),
+        ])),
+        const SizedBox(height: 16),
+        GlassCard(child: Column(children: [
+          _settingsRow(Icons.notifications_outlined, 'Notifications'),
+          _div(),
+          _settingsRow(Icons.lock_outline, 'Privacy & Security'),
+          _div(),
+          _settingsRow(Icons.help_outline, 'Help & Support'),
+          _div(),
+          _settingsRow(Icons.info_outline, 'About'),
+        ])),
+        const SizedBox(height: 16),
+        GlassCard(onTap: () => Navigator.of(context).pushReplacementNamed('/login'),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const Icon(Icons.logout, color: Color(0xFFEF4444), size: 20), const SizedBox(width: 8),
+            Text('Log Out', style: GoogleFonts.poppins(color: const Color(0xFFEF4444), fontSize: 15, fontWeight: FontWeight.w600)),
+          ])),
+        const SizedBox(height: 30),
+      ]),
+    ));
+  }
+
+  Widget _infoRow(IconData icon, String label, String value) {
+    return Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(children: [
+      Icon(icon, color: const Color(0xFF06B6D4), size: 20), const SizedBox(width: 14),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 12)),
+        Text(value, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+      ])),
+    ]));
+  }
+
+  Widget _settingsRow(IconData icon, String label) {
+    return InkWell(onTap: () {}, child: Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Row(children: [
+      Icon(icon, color: const Color(0xFF94A3B8), size: 22), const SizedBox(width: 14),
+      Expanded(child: Text(label, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500))),
+      const Icon(Icons.arrow_forward_ios, color: Color(0xFF475569), size: 16),
+    ])));
+  }
+
+  Widget _div() => Divider(color: const Color(0xFF334155).withOpacity(0.5), height: 1);
+}
