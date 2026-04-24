@@ -15,11 +15,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     var emps = MockDataService.employeesByDivision(_selectedDiv);
     emps.sort((a, b) => b.performanceScore.compareTo(a.performanceScore));
     return SafeArea(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(padding: const EdgeInsets.fromLTRB(20, 28, 20, 0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Leaderboard', style: GoogleFonts.poppins(color: const Color(0xFF0F172A), fontSize: 24, fontWeight: FontWeight.w700)),
+        Text('Leaderboard', style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 24, fontWeight: FontWeight.w700)),
         Text('Top performers ranking', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
         const SizedBox(height: 16),
         SizedBox(height: 40, child: ListView(scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics(),
@@ -36,7 +37,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       ])),
       const SizedBox(height: 16),
       // Top 3 podium
-      if (emps.length >= 3) Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: _buildPodium(emps)),
+      if (emps.length >= 3) Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: _buildPodium(context, emps)),
       const SizedBox(height: 16),
       // Full list
       Expanded(child: AnimationLimiter(child: ListView.builder(
@@ -55,11 +56,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                   child: Center(child: Text(e.name.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: _divColor(e.division), fontSize: 14, fontWeight: FontWeight.w700)))),
                 const SizedBox(width: 12),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(e.name, style: GoogleFonts.poppins(color: const Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.w600)),
+                  Text(e.name, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.w600)),
                   Text('${e.position} · ${e.division}', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 11)),
                 ])),
                 Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                  Text('${e.performanceScore.toInt()}', style: GoogleFonts.poppins(color: const Color(0xFF0F172A), fontSize: 20, fontWeight: FontWeight.w800)),
+                  Text('${e.performanceScore.toInt()}', style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 20, fontWeight: FontWeight.w800)),
                   Text('pts', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 10)),
                 ]),
               ]),
@@ -70,26 +71,33 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     ]));
   }
 
-  Widget _buildPodium(List emps) {
+  Widget _buildPodium(BuildContext context, List emps) {
     return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-      Expanded(child: _podiumCard(emps[1], 2, 100, const Color(0xFFC0C0C0))),
+      Expanded(child: _podiumCard(context, emps[1], 2, 20, const Color(0xFFC0C0C0))),
       const SizedBox(width: 8),
-      Expanded(child: _podiumCard(emps[0], 1, 130, const Color(0xFFFFD700))),
+      Expanded(child: _podiumCard(context, emps[0], 1, 40, const Color(0xFFFFD700))),
       const SizedBox(width: 8),
-      Expanded(child: _podiumCard(emps[2], 3, 80, const Color(0xFFCD7F32))),
+      Expanded(child: _podiumCard(context, emps[2], 3, 0, const Color(0xFFCD7F32))),
     ]);
   }
 
-  Widget _podiumCard(emp, int rank, double height, Color medalColor) {
-    return GlassCard(padding: const EdgeInsets.all(12), child: Column(children: [
-      Text(_rankEmoji(rank - 1), style: const TextStyle(fontSize: 28)),
-      const SizedBox(height: 8),
-      Container(width: 48, height: 48, decoration: BoxDecoration(shape: BoxShape.circle, color: medalColor.withOpacity(0.15), border: Border.all(color: medalColor, width: 2)),
-        child: Center(child: Text(emp.name.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: medalColor.withOpacity(0.8), fontSize: 16, fontWeight: FontWeight.w700)))),
-      const SizedBox(height: 8),
-      Text(emp.name.split(' ').first, style: GoogleFonts.poppins(color: const Color(0xFF0F172A), fontSize: 12, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
-      Text('${emp.performanceScore.toInt()} pts', style: GoogleFonts.poppins(color: const Color(0xFF06B6D4), fontSize: 14, fontWeight: FontWeight.w800)),
-    ]));
+  Widget _podiumCard(BuildContext context, emp, int rank, double heightOffset, Color medalColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        GlassCard(padding: const EdgeInsets.all(12), child: Column(children: [
+          Text(_rankEmoji(rank - 1), style: const TextStyle(fontSize: 28)),
+          const SizedBox(height: 8),
+          Container(width: 48, height: 48, decoration: BoxDecoration(shape: BoxShape.circle, color: medalColor.withOpacity(0.15), border: Border.all(color: medalColor, width: 2)),
+            child: Center(child: Text(emp.name.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: medalColor.withOpacity(isDark ? 1.0 : 0.8), fontSize: 16, fontWeight: FontWeight.w700)))),
+          const SizedBox(height: 8),
+          Text(emp.name.split(' ').first, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 12, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+          Text('${emp.performanceScore.toInt()} pts', style: GoogleFonts.poppins(color: const Color(0xFF06B6D4), fontSize: 14, fontWeight: FontWeight.w800)),
+        ])),
+        SizedBox(height: heightOffset),
+      ],
+    );
   }
 
   String _rankEmoji(int i) {

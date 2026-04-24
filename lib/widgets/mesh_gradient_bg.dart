@@ -22,19 +22,22 @@ class _MeshGradientBgState extends State<MeshGradientBg> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft, end: Alignment.bottomRight,
-              colors: [Color(0xFFFFFFFF), Color(0xFF1E293B), Color(0xFF0F172A), Color(0xFF334155), Color(0xFF1E293B)],
-              stops: [0.0, 0.25, 0.5, 0.75, 1.0],
+              colors: isDark 
+                ? [const Color(0xFF0F172A), const Color(0xFF1E293B), const Color(0xFF020617)]
+                : [const Color(0xFFFFFFFF), const Color(0xFFF8FAFC), const Color(0xFFF1F5F9)],
             ),
           ),
           child: CustomPaint(
-            painter: _LightMeshPainter(_controller.value),
+            painter: _MeshPainter(_controller.value, isDark),
             child: widget.child,
           ),
         );
@@ -43,39 +46,44 @@ class _MeshGradientBgState extends State<MeshGradientBg> with SingleTickerProvid
   }
 }
 
-class _LightMeshPainter extends CustomPainter {
+class _MeshPainter extends CustomPainter {
   final double animationValue;
-  _LightMeshPainter(this.animationValue);
+  final bool isDark;
+  _MeshPainter(this.animationValue, this.isDark);
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
+    final op = isDark ? 1.5 : 1.0; // Higher opacity in dark mode to show against dark bg
+    
     // Soft cyan blob
     final c1 = Offset(
       size.width * (0.25 + 0.15 * math.sin(animationValue * 2 * math.pi)),
       size.height * (0.15 + 0.1 * math.cos(animationValue * 2 * math.pi)),
     );
-    paint.shader = RadialGradient(colors: [const Color(0xFF06B6D4).withOpacity(0.08), const Color(0xFF06B6D4).withOpacity(0.0)])
+    paint.shader = RadialGradient(colors: [const Color(0xFF06B6D4).withOpacity(0.08 * op), const Color(0xFF06B6D4).withOpacity(0.0)])
         .createShader(Rect.fromCircle(center: c1, radius: size.width * 0.5));
     canvas.drawCircle(c1, size.width * 0.5, paint);
+    
     // Soft purple blob
     final c2 = Offset(
       size.width * (0.75 + 0.1 * math.cos(animationValue * 2 * math.pi + 1.5)),
       size.height * (0.55 + 0.12 * math.sin(animationValue * 2 * math.pi + 1.5)),
     );
-    paint.shader = RadialGradient(colors: [const Color(0xFF8B5CF6).withOpacity(0.06), const Color(0xFF8B5CF6).withOpacity(0.0)])
+    paint.shader = RadialGradient(colors: [const Color(0xFF8B5CF6).withOpacity(0.06 * op), const Color(0xFF8B5CF6).withOpacity(0.0)])
         .createShader(Rect.fromCircle(center: c2, radius: size.width * 0.45));
     canvas.drawCircle(c2, size.width * 0.45, paint);
+    
     // Soft amber blob
     final c3 = Offset(
       size.width * (0.5 + 0.18 * math.sin(animationValue * 2 * math.pi + 3.0)),
       size.height * (0.85 + 0.06 * math.cos(animationValue * 2 * math.pi + 3.0)),
     );
-    paint.shader = RadialGradient(colors: [const Color(0xFFF59E0B).withOpacity(0.05), const Color(0xFFF59E0B).withOpacity(0.0)])
+    paint.shader = RadialGradient(colors: [const Color(0xFFF59E0B).withOpacity(0.05 * op), const Color(0xFFF59E0B).withOpacity(0.0)])
         .createShader(Rect.fromCircle(center: c3, radius: size.width * 0.4));
     canvas.drawCircle(c3, size.width * 0.4, paint);
   }
 
   @override
-  bool shouldRepaint(covariant _LightMeshPainter old) => old.animationValue != animationValue;
+  bool shouldRepaint(covariant _MeshPainter old) => old.animationValue != animationValue || old.isDark != isDark;
 }

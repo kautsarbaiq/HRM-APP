@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/role_switcher.dart';
+import '../widgets/theme_toggle_widget.dart';
 import '../services/mock_data_service.dart';
 import '../services/role_provider.dart';
 
@@ -12,6 +13,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final emp = MockDataService.currentEmployee;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SafeArea(child: SingleChildScrollView(
       physics: const BouncingScrollPhysics(), padding: const EdgeInsets.all(20),
       child: Column(children: [
@@ -30,8 +32,10 @@ class ProfileScreen extends StatelessWidget {
         GlassCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Demo Mode', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 13)),
           const SizedBox(height: 4),
-          Text('Switch Role', style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 12),
+          Text('Settings & Roles', style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 16, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 16),
+          const Center(child: ThemeToggleWidget()),
+          const SizedBox(height: 16),
           const Center(child: RoleSwitcher()),
           const SizedBox(height: 8),
           Consumer<RoleProvider>(builder: (ctx, rp, _) => Center(child: Text(
@@ -41,25 +45,25 @@ class ProfileScreen extends StatelessWidget {
         const SizedBox(height: 16),
         // Info card
         GlassCard(child: Column(children: [
-          _infoRow(Icons.badge_outlined, 'Employee ID', emp.employeeId),
+          _infoRow(context, Icons.badge_outlined, 'Employee ID', emp.employeeId),
           _div(),
-          _infoRow(Icons.email_outlined, 'Email', emp.email),
+          _infoRow(context, Icons.email_outlined, 'Email', emp.email),
           _div(),
-          _infoRow(Icons.business, 'Division', emp.division),
+          _infoRow(context, Icons.business, 'Division', emp.division),
           _div(),
-          _infoRow(Icons.work_outline, 'Position', emp.position),
+          _infoRow(context, Icons.work_outline, 'Position', emp.position),
           _div(),
-          _infoRow(Icons.attach_money, 'Monthly Salary', 'RM ${emp.monthlySalary.toStringAsFixed(0)}'),
+          _infoRow(context, Icons.attach_money, 'Monthly Salary', 'RM ${emp.monthlySalary.toStringAsFixed(0)}'),
         ])),
         const SizedBox(height: 16),
         GlassCard(child: Column(children: [
-          _settingsRow(Icons.notifications_outlined, 'Notifications'),
+          _settingsRow(context, Icons.notifications_outlined, 'Notifications'),
           _div(),
-          _settingsRow(Icons.lock_outline, 'Privacy & Security'),
+          _settingsRow(context, Icons.lock_outline, 'Privacy & Security'),
           _div(),
-          _settingsRow(Icons.help_outline, 'Help & Support'),
+          _settingsRow(context, Icons.help_outline, 'Help & Support'),
           _div(),
-          _settingsRow(Icons.info_outline, 'About'),
+          _settingsRow(context, Icons.info_outline, 'About'),
         ])),
         const SizedBox(height: 16),
         GlassCard(onTap: () => Navigator.of(context).pushReplacementNamed('/login'),
@@ -72,20 +76,22 @@ class ProfileScreen extends StatelessWidget {
     ));
   }
 
-  Widget _infoRow(IconData icon, String label, String value) {
+  Widget _infoRow(BuildContext context, IconData icon, String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(children: [
       Icon(icon, color: const Color(0xFF06B6D4), size: 20), const SizedBox(width: 14),
       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 12)),
-        Text(value, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+        Text(value, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.w500)),
       ])),
     ]));
   }
 
-  Widget _settingsRow(IconData icon, String label) {
+  Widget _settingsRow(BuildContext context, IconData icon, String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(onTap: () {}, child: Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Row(children: [
       Icon(icon, color: const Color(0xFF94A3B8), size: 22), const SizedBox(width: 14),
-      Expanded(child: Text(label, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500))),
+      Expanded(child: Text(label, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.w500))),
       const Icon(Icons.arrow_forward_ios, color: Color(0xFF475569), size: 16),
     ])));
   }

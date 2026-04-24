@@ -29,6 +29,8 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -42,20 +44,20 @@ class GlassCard extends StatelessWidget {
             child: Container(
               padding: padding ?? const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(opacity),
+                color: isDark ? const Color(0xFF0F172A).withOpacity(0.2) : Colors.white.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(borderRadius),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.8),
+                  color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.8),
                   width: borderWidth,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withOpacity(isDark ? 0.1 : 0.02),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),

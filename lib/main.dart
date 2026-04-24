@@ -6,6 +6,7 @@ import 'services/role_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/shell_screen.dart';
+import 'theme/theme_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,27 +27,31 @@ class ESSApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => RoleProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp(
-        title: 'ESS Malaysia',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          brightness: Brightness.light,
-          scaffoldBackgroundColor: const Color(0xFF1E293B),
-          textTheme: GoogleFonts.poppinsTextTheme(ThemeData.light().textTheme),
-          colorScheme: const ColorScheme.light(
-            primary: Color(0xFF06B6D4),
-            secondary: Color(0xFF8B5CF6),
-            surface: Color(0xFFFFFFFF),
-            onSurface: Colors.white,
-          ),
-          useMaterial3: true,
-        ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const SplashScreen(),
-          '/login': (context) => const LoginScreen(),
-          '/home': (context) => const ShellScreen(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          // Update system UI overlay based on theme
+          SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+            systemNavigationBarColor: themeProvider.isDarkMode ? const Color(0xFF020617) : Colors.white,
+            systemNavigationBarIconBrightness: themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+          ));
+          
+          return MaterialApp(
+            title: 'ESS Malaysia',
+            debugShowCheckedModeBanner: false,
+            theme: themeProvider.themeData.copyWith(
+              textTheme: GoogleFonts.poppinsTextTheme(themeProvider.themeData.textTheme),
+            ),
+            initialRoute: '/',
+            routes: {
+              '/': (context) => const SplashScreen(),
+              '/login': (context) => const LoginScreen(),
+              '/home': (context) => const ShellScreen(),
+            },
+          );
         },
       ),
     );

@@ -14,12 +14,12 @@ class StatusBadge extends StatelessWidget {
     }
   }
 
-  Color get _fg {
+  Color _fg(bool isDark) {
     switch (status) {
-      case 'Approved': return const Color(0xFF059669);
-      case 'Rejected': return const Color(0xFFDC2626);
-      case 'Pending': return const Color(0xFFD97706);
-      default: return const Color(0xFF94A3B8);
+      case 'Approved': return isDark ? const Color(0xFF10B981) : const Color(0xFF059669);
+      case 'Rejected': return isDark ? const Color(0xFFEF4444) : const Color(0xFFDC2626);
+      case 'Pending': return isDark ? const Color(0xFFF59E0B) : const Color(0xFFD97706);
+      default: return isDark ? const Color(0xFFCBD5E1) : const Color(0xFF94A3B8);
     }
   }
 
@@ -34,13 +34,14 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(color: _bg, borderRadius: BorderRadius.circular(20), border: Border.all(color: _fg.withOpacity(0.2), width: 0.5)),
+      decoration: BoxDecoration(color: _bg, borderRadius: BorderRadius.circular(20), border: Border.all(color: _fg(isDark).withOpacity(0.2), width: 0.5)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(_icon, color: _fg, size: 14),
+        Icon(_icon, color: _fg(isDark), size: 14),
         const SizedBox(width: 4),
-        Text(status, style: GoogleFonts.poppins(color: _fg, fontSize: 12, fontWeight: FontWeight.w600)),
+        Text(status, style: GoogleFonts.poppins(color: _fg(isDark), fontSize: 12, fontWeight: FontWeight.w600)),
       ]),
     );
   }

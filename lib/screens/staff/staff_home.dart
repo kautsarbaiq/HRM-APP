@@ -93,8 +93,8 @@ class _StaffHomeState extends State<StaffHome> {
             backgroundColor: const Color(0xFF1E293B),
             appBar: AppBar(
               backgroundColor: Colors.transparent, elevation: 0,
-              leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20), onPressed: () => Navigator.pop(ctx)),
-              title: Text('Profile', style: GoogleFonts.poppins(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
+              leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onSurface, size: 20), onPressed: () => Navigator.pop(ctx)),
+              title: Text('Profile', style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
             ),
             body: const MeshGradientBg(child: ProfileScreen()),
           ))),
@@ -106,7 +106,7 @@ class _StaffHomeState extends State<StaffHome> {
             const SizedBox(width: 16),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(_getGreeting(), style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
-              Text(emp.name, style: GoogleFonts.poppins(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700)),
+              Text(emp.name, style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurface, fontSize: 22, fontWeight: FontWeight.w700)),
             ])),
           ]),
         ),
@@ -137,7 +137,7 @@ class _StaffHomeState extends State<StaffHome> {
         ClipRRect(borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: (_earnedToday / MockDataService.currentEmployee.dailySalary).clamp(0, 1),
-            backgroundColor: const Color(0xFF0F172A), minHeight: 6,
+            backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9), minHeight: 6,
             valueColor: const AlwaysStoppedAnimation(Color(0xFF06B6D4)),
           ),
         ),
@@ -179,14 +179,14 @@ class _StaffHomeState extends State<StaffHome> {
     return Column(children: [
       Icon(icon, color: const Color(0xFF06B6D4), size: 18),
       const SizedBox(height: 4),
-      Text(value, style: GoogleFonts.poppins(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+      Text(value, style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w600)),
       Text(label, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 10)),
     ]);
   }
 
   Widget _quickActions() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('Quick Actions', style: GoogleFonts.poppins(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
+      Text('Quick Actions', style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
       const SizedBox(height: 14),
       SingleChildScrollView(scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics(), child: Row(children: [
         QuickActionCard(icon: Icons.fingerprint, label: 'Attendance', color: const Color(0xFF06B6D4), onTap: () => widget.onNavigate?.call(1)),
@@ -202,7 +202,7 @@ class _StaffHomeState extends State<StaffHome> {
 
   Widget _recentActivity() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('Recent Activity', style: GoogleFonts.poppins(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
+      Text('Recent Activity', style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
       const SizedBox(height: 14),
       GlassCard(padding: const EdgeInsets.all(0), child: Column(children: [
         _activityItem(Icons.check_circle, const Color(0xFF10B981), 'Checked in today', '08:30 AM · On Time', isFirst: true),
@@ -221,7 +221,7 @@ class _StaffHomeState extends State<StaffHome> {
           child: Icon(icon, color: color, size: 18)),
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+          Text(title, style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
           Text(sub, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 12)),
         ])),
       ]),
