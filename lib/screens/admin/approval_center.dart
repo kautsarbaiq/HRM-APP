@@ -70,6 +70,19 @@ class _ApprovalCenterState extends State<ApprovalCenter> with SingleTickerProvid
                 Text('${DateFormat('dd MMM').format(l.startDate)} — ${DateFormat('dd MMM yyyy').format(l.endDate)}', style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 13))]),
               const SizedBox(height: 4),
               Text(l.reason, style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 13)),
+              const SizedBox(height: 12),
+              // View Attachment Button
+              OutlinedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.image_outlined, size: 16),
+                label: Text('View Attachment', style: GoogleFonts.poppins(fontSize: 12)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF06B6D4),
+                  side: const BorderSide(color: Color(0xFF06B6D4)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                ),
+              ),
               const SizedBox(height: 14),
               Row(children: [Expanded(child: _btn('Reject', const Color(0xFFEF4444), Icons.close, () => _snack('Leave rejected', const Color(0xFFEF4444)))),
                 const SizedBox(width: 10), Expanded(child: _btn('Approve', const Color(0xFF10B981), Icons.check, () => _snack('Leave approved', const Color(0xFF10B981))))]),
@@ -103,10 +116,11 @@ class _ApprovalCenterState extends State<ApprovalCenter> with SingleTickerProvid
               const SizedBox(height: 10),
               Text(c.description, style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 13)),
               const SizedBox(height: 14),
-              Container(height: 70, width: double.infinity, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: isDark ? const Color(0xFF1E293B) : Colors.white, border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0))),
-                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(Icons.receipt, color: isDark ? const Color(0xFF475569) : onSurfaceVariant, size: 28), const SizedBox(width: 8),
-                  Text('Receipt attached', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : onSurfaceVariant, fontSize: 13)),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: isDark ? const Color(0xFF1E293B) : Colors.white, border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0))),
+                child: Row(children: [
+                  Icon(Icons.receipt, color: isDark ? const Color(0xFF475569) : onSurfaceVariant, size: 24), const SizedBox(width: 8),
+                  Expanded(child: Text('Receipt attached', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : onSurfaceVariant, fontSize: 12))),
+                  TextButton(onPressed: () {}, child: Text('View', style: GoogleFonts.poppins(color: const Color(0xFF06B6D4), fontWeight: FontWeight.w600, fontSize: 12))),
                 ])),
               const SizedBox(height: 14),
               Row(children: [Expanded(child: _btn('Reject', const Color(0xFFEF4444), Icons.close, () => _snack('Claim rejected', const Color(0xFFEF4444)))),

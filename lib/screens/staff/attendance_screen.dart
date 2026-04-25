@@ -79,13 +79,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
   }
 
   Widget _cameraPreview() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GlassCard(padding: const EdgeInsets.all(8), child: AspectRatio(aspectRatio: 3 / 4,
       child: ClipRRect(borderRadius: BorderRadius.circular(20), child: Stack(children: [
         Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-          gradient: const RadialGradient(colors: [Color(0xFF334155), Color(0xFF475569), Color(0xFF94A3B8)], stops: [0, 0.6, 1]))),
+          gradient: RadialGradient(
+            colors: isDark 
+              ? [const Color(0xFF1E293B), const Color(0xFF0F172A), const Color(0xFF020617)]
+              : [const Color(0xFFF8FAFC), const Color(0xFFF1F5F9), const Color(0xFFE2E8F0)],
+            stops: const [0, 0.6, 1]))),
         Center(child: Container(width: 140, height: 180,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(70), border: Border.all(color: const Color(0xFF94A3B8).withOpacity(0.3), width: 1)),
-          child: Icon(Icons.face, size: 80, color: const Color(0xFF94A3B8).withOpacity(0.3)))),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(70), border: Border.all(color: (isDark ? Colors.white : const Color(0xFF94A3B8)).withOpacity(0.2), width: 1)),
+          child: Icon(Icons.face, size: 80, color: (isDark ? Colors.white : const Color(0xFF94A3B8)).withOpacity(0.2)))),
         if (_isScanning) AnimatedBuilder(animation: _scanAnim, builder: (ctx, _) {
           return Positioned(top: _scanAnim.value * 300, left: 40, right: 40,
             child: Container(height: 3, decoration: BoxDecoration(
@@ -96,11 +101,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
         Positioned(bottom: 16, left: 0, right: 0, child: Center(child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: _isScanning ? const Color(0xFF06B6D4).withOpacity(0.15) : (_isCheckedIn ? const Color(0xFF10B981).withOpacity(0.15) : Colors.white.withOpacity(0.15)),
+            color: _isScanning ? const Color(0xFF06B6D4).withOpacity(0.15) : (_isCheckedIn ? const Color(0xFF10B981).withOpacity(0.15) : (isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.15))),
             borderRadius: BorderRadius.circular(20)),
           child: Text(
             _isScanning ? 'Scanning face...' : (_isCheckedIn ? '✓ Face verified' : 'Position your face'),
-            style: GoogleFonts.poppins(color: _isScanning ? const Color(0xFF06B6D4) : (_isCheckedIn ? const Color(0xFF059669) : const Color(0xFF94A3B8)), fontSize: 13, fontWeight: FontWeight.w500)),
+            style: GoogleFonts.poppins(color: _isScanning ? const Color(0xFF06B6D4) : (_isCheckedIn ? const Color(0xFF059669) : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))), fontSize: 13, fontWeight: FontWeight.w500)),
         ))),
       ]))));
   }

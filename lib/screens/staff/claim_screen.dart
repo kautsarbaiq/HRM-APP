@@ -78,14 +78,19 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
   }
 
   Widget _scannerArea() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GlassCard(padding: const EdgeInsets.all(8), child: AspectRatio(aspectRatio: 4 / 3,
       child: ClipRRect(borderRadius: BorderRadius.circular(20), child: Stack(children: [
         Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-          gradient: const RadialGradient(colors: [Color(0xFF0F172A), Color(0xFF334155)]))),
+          gradient: RadialGradient(
+            colors: isDark 
+              ? [const Color(0xFF1E293B), const Color(0xFF0F172A), const Color(0xFF020617)]
+              : [const Color(0xFFF8FAFC), const Color(0xFFF1F5F9), const Color(0xFFE2E8F0)],
+            stops: const [0, 0.6, 1]))),
         Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(_isScanning ? Icons.document_scanner : Icons.receipt_long, size: 60, color: const Color(0xFF94A3B8).withOpacity(_isScanning ? 0.5 : 0.25)),
+          Icon(_isScanning ? Icons.document_scanner : Icons.receipt_long, size: 60, color: (isDark ? Colors.white : const Color(0xFF94A3B8)).withOpacity(_isScanning ? 0.4 : 0.2)),
           const SizedBox(height: 12),
-          Text(_isScanning ? 'Scanning receipt...' : 'Tap to scan receipt', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
+          Text(_isScanning ? 'Scanning receipt...' : 'Tap to scan receipt', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 14)),
         ])),
         if (_isScanning) AnimatedBuilder(animation: _scanAnim, builder: (ctx, _) =>
           Positioned(top: _scanAnim.value * 200, left: 20, right: 20,

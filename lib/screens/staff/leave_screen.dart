@@ -103,6 +103,28 @@ class _LeaveScreenState extends State<LeaveScreen> {
       Container(decoration: BoxDecoration(color: isDark ? const Color(0xFF1E293B) : Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A))),
         child: TextField(controller: _reasonCtrl, maxLines: 3, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14),
           decoration: InputDecoration(hintText: 'Reason for leave...', hintStyle: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : const Color(0xFF64748B)), border: InputBorder.none, contentPadding: const EdgeInsets.all(16)))),
+      const SizedBox(height: 12),
+      // Supporting Picture Input
+      GestureDetector(
+        onTap: () {},
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A).withOpacity(0.3) : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0), style: BorderStyle.solid),
+          ),
+          child: Column(
+            children: [
+              Icon(Icons.add_photo_alternate_outlined, color: isDark ? const Color(0xFF06B6D4) : const Color(0xFF0F172A), size: 28),
+              const SizedBox(height: 4),
+              Text('Add Supporting Picture', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w500)),
+              Text('(Optional: MC, Flight Ticket, etc.)', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8), fontSize: 10)),
+            ],
+          ),
+        ),
+      ),
       const SizedBox(height: 16),
       SizedBox(width: double.infinity, height: 50, child: ElevatedButton(
         onPressed: () { ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Leave request submitted!', style: GoogleFonts.poppins(color: Colors.white)), backgroundColor: const Color(0xFF06B6D4), behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))); },
