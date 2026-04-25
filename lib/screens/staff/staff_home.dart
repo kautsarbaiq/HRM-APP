@@ -90,12 +90,12 @@ class _StaffHomeState extends State<StaffHome> {
       Expanded(
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => Scaffold(
-            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (routeCtx) => Scaffold(
+            backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
             appBar: AppBar(
               backgroundColor: Colors.transparent, elevation: 0,
-              leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onSurface, size: 20), onPressed: () => Navigator.pop(ctx)),
-              title: Text('Profile', style: GoogleFonts.poppins(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
+              leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(routeCtx).colorScheme.onSurface, size: 20), onPressed: () => Navigator.pop(routeCtx)),
+              title: Text('Profile', style: GoogleFonts.poppins(color: Theme.of(routeCtx).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
             ),
             body: const MeshGradientBg(child: ProfileScreen()),
           ))),

@@ -33,7 +33,11 @@ class _ApprovalCenterState extends State<ApprovalCenter> with SingleTickerProvid
         const SizedBox(height: 20),
         Container(decoration: BoxDecoration(color: isDark ? const Color(0xFF0F172A) : Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: isDark ? Colors.transparent : const Color(0xFFE2E8F0))),
           child: TabBar(controller: _tabCtrl,
-            indicator: BoxDecoration(borderRadius: BorderRadius.circular(14), gradient: isDark ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]) : null, color: isDark ? null : const Color(0xFF0F172A)),
+            indicator: BoxDecoration(
+              borderRadius: BorderRadius.circular(14), 
+              gradient: isDark ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]) : null, 
+              color: isDark ? null : const Color(0xFF06B6D4)
+            ),
             indicatorSize: TabBarIndicatorSize.tab, dividerColor: Colors.transparent,
             labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
             unselectedLabelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 14),

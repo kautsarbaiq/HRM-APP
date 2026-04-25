@@ -34,10 +34,17 @@ class _ShellScreenState extends State<ShellScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<RoleProvider>(builder: (context, rp, _) {
-      // Reset to home when role changes
+      // Reset to home when role changes safely using a key for the stack
       final roleId = rp.isAdmin ? 1 : 0;
       if (_prevRole != -1 && _prevRole != roleId) {
-        _currentIndex = 0;
+        // Use post frame callback to reset index to avoid "setState during build" issues
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _currentIndex = 0;
+            });
+          }
+        });
       }
       _prevRole = roleId;
 
@@ -147,12 +154,12 @@ class _AdminMoreScreen extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => Scaffold(
+          onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (routeCtx) => Scaffold(
             backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
             appBar: AppBar(
               backgroundColor: Colors.transparent, elevation: 0,
-              leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(ctx).colorScheme.onSurface, size: 20), onPressed: () => Navigator.pop(ctx)),
-              title: Text(title, style: GoogleFonts.poppins(color: Theme.of(ctx).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
+              leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(routeCtx).colorScheme.onSurface, size: 20), onPressed: () => Navigator.pop(routeCtx)),
+              title: Text(title, style: GoogleFonts.poppins(color: Theme.of(routeCtx).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
             ),
             body: MeshGradientBg(child: screen),
           ))),

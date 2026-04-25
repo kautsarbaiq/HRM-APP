@@ -147,12 +147,23 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
         onPressed: _isScanning || _isCheckedIn ? null : _startScan,
         style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
         child: Ink(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24),
-            gradient: (!_isCheckedIn && !_isScanning && isDark) ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]) : null,
-            color: _isCheckedIn ? const Color(0xFF10B981) : (_isScanning ? const Color(0xFF06B6D4).withOpacity(0.3) : (isDark ? null : const Color(0xFF0F172A)))),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: (!_isCheckedIn && !_isScanning) 
+              ? const LinearGradient(
+                  colors: [Color(0xFF22D3EE), Color(0xFF06B6D4)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ) 
+              : null,
+            color: _isCheckedIn ? const Color(0xFF10B981) : (_isScanning ? const Color(0xFF06B6D4).withOpacity(0.3) : null),
+            boxShadow: (!_isCheckedIn && !_isScanning) ? [
+              BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))
+            ] : null,
+          ),
           child: Container(alignment: Alignment.center, height: 56,
             child: Text(_isScanning ? 'Scanning...' : (_isCheckedIn ? '✓ Checked In' : 'Check In Now'),
-              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600))),
+              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.5))),
         ),
       )));
   }

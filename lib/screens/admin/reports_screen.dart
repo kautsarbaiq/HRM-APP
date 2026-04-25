@@ -75,7 +75,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
             indicator: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               gradient: isDark ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]) : null,
-              color: isDark ? null : const Color(0xFF0F172A),
+              color: isDark ? null : const Color(0xFF06B6D4),
             ),
             indicatorSize: TabBarIndicatorSize.tab, dividerColor: Colors.transparent,
             labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 12),

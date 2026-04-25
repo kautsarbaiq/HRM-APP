@@ -71,38 +71,40 @@ class _LeaveScreenState extends State<LeaveScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+    final outlineColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+    final fieldBg = isDark ? const Color(0xFF1E293B) : Colors.white.withOpacity(0.8);
     
     return GlassCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text('New Request', style: GoogleFonts.poppins(color: onSurface, fontSize: 16, fontWeight: FontWeight.w600)),
       const SizedBox(height: 16),
       Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        decoration: BoxDecoration(color: isDark ? const Color(0xFF1E293B) : Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A))),
+        decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
         child: DropdownButtonHideUnderline(child: DropdownButton<String>(
           value: _selectedType, isExpanded: true, dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-          style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14),
-          icon: Icon(Icons.keyboard_arrow_down, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF0F172A)),
-          items: _types.map((t) => DropdownMenuItem(value: t, child: Text(t, style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A))))).toList(),
+          style: GoogleFonts.poppins(color: onSurface, fontSize: 14),
+          icon: Icon(Icons.keyboard_arrow_down, color: onSurfaceVariant),
+          items: _types.map((t) => DropdownMenuItem(value: t, child: Text(t, style: TextStyle(color: onSurface)))).toList(),
           onChanged: (v) => setState(() => _selectedType = v!),
         ))),
       const SizedBox(height: 12),
       GestureDetector(
         onTap: () async {
           final picked = await showDateRangePicker(context: ctx, firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 365)),
-            builder: (ctx, child) => Theme(data: ThemeData.light().copyWith(colorScheme: const ColorScheme.light(primary: Color(0xFF06B6D4), surface: Colors.white)), child: child!));
+            builder: (ctx, child) => Theme(data: isDark ? ThemeData.dark().copyWith(colorScheme: const ColorScheme.dark(primary: Color(0xFF06B6D4), surface: Color(0xFF0F172A))) : ThemeData.light().copyWith(colorScheme: const ColorScheme.light(primary: Color(0xFF06B6D4), surface: Colors.white)), child: child!));
           if (picked != null) setState(() => _selectedRange = picked);
         },
         child: Container(padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: isDark ? const Color(0xFF1E293B) : Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A))),
+          decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
           child: Row(children: [
-            Icon(Icons.date_range, color: isDark ? const Color(0xFF06B6D4) : const Color(0xFF0F172A), size: 20), const SizedBox(width: 12),
+            Icon(Icons.date_range, color: const Color(0xFF06B6D4), size: 20), const SizedBox(width: 12),
             Text(_selectedRange != null ? '${DateFormat('dd MMM').format(_selectedRange!.start)} — ${DateFormat('dd MMM yyyy').format(_selectedRange!.end)}' : 'Select date range',
-              style: GoogleFonts.poppins(color: _selectedRange != null ? (isDark ? Colors.white : const Color(0xFF0F172A)) : (isDark ? const Color(0xFF475569) : const Color(0xFF64748B)), fontSize: 14)),
+              style: GoogleFonts.poppins(color: _selectedRange != null ? onSurface : onSurfaceVariant, fontSize: 14)),
           ])),
       ),
       const SizedBox(height: 12),
-      Container(decoration: BoxDecoration(color: isDark ? const Color(0xFF1E293B) : Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A))),
-        child: TextField(controller: _reasonCtrl, maxLines: 3, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14),
-          decoration: InputDecoration(hintText: 'Reason for leave...', hintStyle: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : const Color(0xFF64748B)), border: InputBorder.none, contentPadding: const EdgeInsets.all(16)))),
+      Container(decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
+        child: TextField(controller: _reasonCtrl, maxLines: 3, style: GoogleFonts.poppins(color: onSurface, fontSize: 14),
+          decoration: InputDecoration(hintText: 'Reason for leave...', hintStyle: GoogleFonts.poppins(color: onSurfaceVariant), border: InputBorder.none, contentPadding: const EdgeInsets.all(16)))),
       const SizedBox(height: 12),
       // Supporting Picture Input
       GestureDetector(
@@ -111,16 +113,16 @@ class _LeaveScreenState extends State<LeaveScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF0F172A).withOpacity(0.3) : const Color(0xFFF1F5F9),
+            color: isDark ? const Color(0xFF0F172A).withOpacity(0.3) : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0), style: BorderStyle.solid),
+            border: Border.all(color: outlineColor),
           ),
           child: Column(
             children: [
-              Icon(Icons.add_photo_alternate_outlined, color: isDark ? const Color(0xFF06B6D4) : const Color(0xFF0F172A), size: 28),
+              Icon(Icons.add_photo_alternate_outlined, color: const Color(0xFF06B6D4), size: 28),
               const SizedBox(height: 4),
-              Text('Add Supporting Picture', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w500)),
-              Text('(Optional: MC, Flight Ticket, etc.)', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8), fontSize: 10)),
+              Text('Add Supporting Picture', style: GoogleFonts.poppins(color: onSurface, fontSize: 12, fontWeight: FontWeight.w500)),
+              Text('(Optional: MC, Flight Ticket, etc.)', style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 10)),
             ],
           ),
         ),
@@ -131,10 +133,10 @@ class _LeaveScreenState extends State<LeaveScreen> {
         style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
         child: Ink(decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24), 
-            gradient: isDark ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]) : null,
-            color: isDark ? null : const Color(0xFF0F172A),
+            color: const Color(0xFF06B6D4),
+            boxShadow: [BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))],
           ),
-          child: Container(alignment: Alignment.center, child: Text('Submit Request', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)))),
+          child: Container(alignment: Alignment.center, child: Text('Submit Request', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)))),
       )),
     ]));
   }
