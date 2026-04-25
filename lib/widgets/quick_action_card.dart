@@ -28,6 +28,9 @@ class _QuickActionCardState extends State<QuickActionCard> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    
     return GestureDetector(
       onTapDown: (_) => _ctrl.forward(),
       onTapUp: (_) { _ctrl.reverse(); widget.onTap(); },
@@ -36,15 +39,18 @@ class _QuickActionCardState extends State<QuickActionCard> with SingleTickerProv
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            filter: ImageFilter.blur(sigmaX: isDark ? 15 : 25, sigmaY: isDark ? 15 : 25),
             child: Container(
               width: 100,
               padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: isDark ? Colors.white.withOpacity(0.15) : Colors.white.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.9), width: 1),
-                boxShadow: [BoxShadow(color: widget.color.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
+                border: Border.all(color: isDark ? Colors.white.withOpacity(0.9) : const Color(0xFFE2E8F0), width: 1),
+                boxShadow: [
+                  BoxShadow(color: widget.color.withOpacity(isDark ? 0.08 : 0.12), blurRadius: 16, offset: const Offset(0, 6)),
+                  if (!isDark) BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2)),
+                ],
               ),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 Container(
@@ -53,7 +59,7 @@ class _QuickActionCardState extends State<QuickActionCard> with SingleTickerProv
                   child: Icon(widget.icon, color: widget.color, size: 24),
                 ),
                 const SizedBox(height: 10),
-                Text(widget.label, style: GoogleFonts.poppins(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500), textAlign: TextAlign.center),
+                Text(widget.label, style: GoogleFonts.poppins(color: textColor, fontSize: 12, fontWeight: FontWeight.w500), textAlign: TextAlign.center),
               ]),
             ),
           ),

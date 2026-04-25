@@ -85,12 +85,13 @@ class _StaffHomeState extends State<StaffHome> {
   }
 
   Widget _header(emp) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(children: [
       Expanded(
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => Scaffold(
-            backgroundColor: const Color(0xFF1E293B),
+            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
             appBar: AppBar(
               backgroundColor: Colors.transparent, elevation: 0,
               leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onSurface, size: 20), onPressed: () => Navigator.pop(ctx)),
@@ -113,12 +114,13 @@ class _StaffHomeState extends State<StaffHome> {
       ),
       IconButton(onPressed: () {}, icon: Stack(children: [
         Icon(Icons.notifications_outlined, color: const Color(0xFF94A3B8), size: 28),
-        Positioned(right: 0, top: 0, child: Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFEF4444), border: Border.all(color: Colors.white, width: 1.5)))),
+        Positioned(right: 0, top: 0, child: Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFEF4444), border: Border.all(color: isDark ? const Color(0xFF1E293B) : Colors.white, width: 1.5)))),
       ])),
     ]);
   }
 
   Widget _salaryCounter() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GlassCard(
       child: Column(children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

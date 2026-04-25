@@ -58,7 +58,7 @@ class _ShellScreenState extends State<ShellScreen> {
             child: Container(
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF0F172A).withOpacity(0.85) : Colors.white.withOpacity(0.85),
-                border: Border(top: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFF334155).withOpacity(0.8), width: 0.5)),
+                border: Border(top: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0), width: 0.5)),
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.2 : 0.04), blurRadius: 12, offset: const Offset(0, -4))],
               ),
               child: SafeArea(

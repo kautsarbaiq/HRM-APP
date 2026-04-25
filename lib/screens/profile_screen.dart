@@ -25,8 +25,8 @@ class ProfileScreen extends StatelessWidget {
           child: Center(child: Text(emp.name.split(' ').map((n) => n[0]).take(2).join(),
             style: GoogleFonts.poppins(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w700)))),
         const SizedBox(height: 16),
-        Text(emp.name, style: GoogleFonts.poppins(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700)),
-        Text(emp.position, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
+        Text(emp.name, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 22, fontWeight: FontWeight.w700)),
+        Text(emp.position, style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 14)),
         const SizedBox(height: 24),
         // Role switcher
         GlassCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -96,5 +96,10 @@ class ProfileScreen extends StatelessWidget {
     ])));
   }
 
-  Widget _div() => Divider(color: const Color(0xFF334155).withOpacity(0.5), height: 1);
+  Widget _div() {
+    return Builder(builder: (context) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      return Divider(color: isDark ? const Color(0xFF334155).withOpacity(0.5) : const Color(0xFFE2E8F0), height: 1);
+    });
+  }
 }

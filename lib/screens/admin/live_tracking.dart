@@ -15,11 +15,14 @@ class _LiveTrackingState extends State<LiveTracking> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVar = Theme.of(context).colorScheme.onSurfaceVariant;
     final emps = MockDataService.employeesByDivision(_selectedDivision);
     return SafeArea(child: Column(children: [
       Padding(padding: const EdgeInsets.fromLTRB(20, 28, 20, 0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Live Tracking', style: GoogleFonts.poppins(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700)),
-        Text('Real-time employee locations', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
+        Text('Live Tracking', style: GoogleFonts.poppins(color: onSurface, fontSize: 24, fontWeight: FontWeight.w700)),
+        Text('Real-time employee locations', style: GoogleFonts.poppins(color: onSurfaceVar, fontSize: 14)),
         const SizedBox(height: 16),
         // Division filter chips
         SizedBox(height: 40, child: ListView(
@@ -27,12 +30,12 @@ class _LiveTrackingState extends State<LiveTracking> {
           children: MockDataService.divisions.map((d) => Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
-              label: Text(d, style: GoogleFonts.poppins(color: _selectedDivision == d ? Colors.white : const Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.w500)),
+              label: Text(d, style: GoogleFonts.poppins(color: _selectedDivision == d ? Colors.white : onSurfaceVar, fontSize: 13, fontWeight: FontWeight.w500)),
               selected: _selectedDivision == d,
               onSelected: (_) => setState(() => _selectedDivision = d),
               selectedColor: const Color(0xFF06B6D4),
-              backgroundColor: Colors.white.withOpacity(0.15),
-              side: BorderSide(color: _selectedDivision == d ? const Color(0xFF06B6D4) : const Color(0xFF334155)),
+              backgroundColor: isDark ? Colors.white.withOpacity(0.15) : Colors.white.withOpacity(0.6),
+              side: BorderSide(color: _selectedDivision == d ? const Color(0xFF06B6D4) : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0))),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               showCheckmark: false,
             ),
@@ -71,9 +74,9 @@ class _LiveTrackingState extends State<LiveTracking> {
                   Container(
                     margin: const EdgeInsets.only(top: 4),
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(6),
+                    decoration: BoxDecoration(color: isDark ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(6),
                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)]),
-                    child: Text(e.name.split(' ').first, style: GoogleFonts.poppins(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600)),
+                    child: Text(e.name.split(' ').first, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 9, fontWeight: FontWeight.w600)),
                   ),
                 ]),
               ));
@@ -81,12 +84,12 @@ class _LiveTrackingState extends State<LiveTracking> {
             // Count overlay
             Positioned(top: 16, right: 16, child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12),
+              decoration: BoxDecoration(color: isDark ? Colors.black.withOpacity(0.4) : Colors.white.withOpacity(0.85), borderRadius: BorderRadius.circular(12),
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 8)]),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 const Icon(Icons.people, color: Color(0xFF06B6D4), size: 18),
                 const SizedBox(width: 6),
-                Text('${emps.length} online', style: GoogleFonts.poppins(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                Text('${emps.length} online', style: GoogleFonts.poppins(color: onSurface, fontSize: 13, fontWeight: FontWeight.w600)),
               ]),
             )),
           ]),
@@ -106,8 +109,8 @@ class _LiveTrackingState extends State<LiveTracking> {
                 Container(width: 44, height: 44, decoration: BoxDecoration(shape: BoxShape.circle, color: c.withOpacity(0.15), border: Border.all(color: c, width: 2)),
                   child: Center(child: Text(e.name.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: c, fontSize: 13, fontWeight: FontWeight.w700)))),
                 const SizedBox(height: 4),
-                Text(e.name.split(' ').first, style: GoogleFonts.poppins(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
-                Text(e.division, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 9)),
+                Text(e.name.split(' ').first, style: GoogleFonts.poppins(color: onSurface, fontSize: 10, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
+                Text(e.division, style: GoogleFonts.poppins(color: onSurfaceVar, fontSize: 9)),
               ]),
             );
           },
@@ -128,35 +131,36 @@ class _LiveTrackingState extends State<LiveTracking> {
   }
 
   void _showEmpDetail(BuildContext ctx, emp) {
+    final isDark = Theme.of(ctx).brightness == Brightness.dark;
     showModalBottomSheet(context: ctx, backgroundColor: Colors.transparent, builder: (_) => Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(color: isDark ? const Color(0xFF1E293B) : Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20)]),
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF334155), borderRadius: BorderRadius.circular(2)))),
+        Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2)))),
         const SizedBox(height: 20),
         Row(children: [
           Container(width: 50, height: 50, decoration: BoxDecoration(shape: BoxShape.circle, color: _divColor(emp.division).withOpacity(0.15)),
             child: Center(child: Text(emp.name.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: _divColor(emp.division), fontSize: 18, fontWeight: FontWeight.w700)))),
           const SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(emp.name, style: GoogleFonts.poppins(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
-            Text('${emp.position} · ${emp.division}', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 13)),
+            Text(emp.name, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w700)),
+            Text('${emp.position} · ${emp.division}', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 13)),
           ])),
         ]),
         const SizedBox(height: 16),
-        _detailRow('Employee ID', emp.employeeId),
-        _detailRow('Email', emp.email),
-        _detailRow('Performance', '${emp.performanceScore.toInt()}/100'),
-        _detailRow('Status', '🟢 Online · In Geofence'),
+        _detailRow('Employee ID', emp.employeeId, isDark),
+        _detailRow('Email', emp.email, isDark),
+        _detailRow('Performance', '${emp.performanceScore.toInt()}/100', isDark),
+        _detailRow('Status', '🟢 Online · In Geofence', isDark),
         const SizedBox(height: 8),
       ]),
     ));
   }
 
-  Widget _detailRow(String l, String v) => Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-    Text(l, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 13)),
-    Flexible(child: Text(v, style: GoogleFonts.poppins(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500), textAlign: TextAlign.end)),
+  Widget _detailRow(String l, String v, bool isDark) => Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+    Text(l, style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 13)),
+    Flexible(child: Text(v, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 13, fontWeight: FontWeight.w500), textAlign: TextAlign.end)),
   ]));
 }
 

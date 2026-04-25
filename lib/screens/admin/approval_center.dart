@@ -22,18 +22,22 @@ class _ApprovalCenterState extends State<ApprovalCenter> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+    
     return SafeArea(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(padding: const EdgeInsets.fromLTRB(20, 28, 20, 0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Approval Center', style: GoogleFonts.poppins(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700)),
-        Text('Review and manage requests', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
+        Text('Approval Center', style: GoogleFonts.poppins(color: onSurface, fontSize: 24, fontWeight: FontWeight.w700)),
+        Text('Review and manage requests', style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 14)),
         const SizedBox(height: 20),
-        Container(decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(16)),
+        Container(decoration: BoxDecoration(color: isDark ? const Color(0xFF0F172A) : Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: isDark ? Colors.transparent : const Color(0xFFE2E8F0))),
           child: TabBar(controller: _tabCtrl,
-            indicator: BoxDecoration(borderRadius: BorderRadius.circular(14), gradient: const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)])),
+            indicator: BoxDecoration(borderRadius: BorderRadius.circular(14), gradient: isDark ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]) : null, color: isDark ? null : const Color(0xFF0F172A)),
             indicatorSize: TabBarIndicatorSize.tab, dividerColor: Colors.transparent,
             labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
             unselectedLabelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 14),
-            labelColor: Colors.white, unselectedLabelColor: const Color(0xFF94A3B8),
+            labelColor: Colors.white, unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
             tabs: const [Tab(text: 'Leave Requests'), Tab(text: 'Claims')])),
       ])),
       const SizedBox(height: 16),
@@ -42,6 +46,8 @@ class _ApprovalCenterState extends State<ApprovalCenter> with SingleTickerProvid
   }
 
   Widget _leaveTab() {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     final pending = MockDataService.leaveRequests.where((l) => l.status == 'Pending').toList();
     return ListView(physics: const BouncingScrollPhysics(), padding: const EdgeInsets.symmetric(horizontal: 20),
       children: [AnimationLimiter(child: Column(children: List.generate(pending.length, (i) {
@@ -51,19 +57,19 @@ class _ApprovalCenterState extends State<ApprovalCenter> with SingleTickerProvid
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Container(width: 42, height: 42, decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [const Color(0xFF8B5CF6).withOpacity(0.2), const Color(0xFF06B6D4).withOpacity(0.2)])),
-                  child: Center(child: Text(l.employeeName.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)))),
+                  child: Center(child: Text(l.employeeName.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: onSurface, fontWeight: FontWeight.w600, fontSize: 14)))),
                 const SizedBox(width: 12),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(l.employeeName, style: GoogleFonts.poppins(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
-                  Text('${l.type} Leave · ${l.totalDays} day(s)', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 12)),
+                  Text(l.employeeName, style: GoogleFonts.poppins(color: onSurface, fontSize: 15, fontWeight: FontWeight.w600)),
+                  Text('${l.type} Leave · ${l.totalDays} day(s)', style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 12)),
                 ])),
                 StatusBadge(status: l.status),
               ]),
               const SizedBox(height: 12),
               Row(children: [const Icon(Icons.date_range, color: Color(0xFF06B6D4), size: 16), const SizedBox(width: 6),
-                Text('${DateFormat('dd MMM').format(l.startDate)} — ${DateFormat('dd MMM yyyy').format(l.endDate)}', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 13))]),
+                Text('${DateFormat('dd MMM').format(l.startDate)} — ${DateFormat('dd MMM yyyy').format(l.endDate)}', style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 13))]),
               const SizedBox(height: 4),
-              Text(l.reason, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 13)),
+              Text(l.reason, style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 13)),
               const SizedBox(height: 14),
               Row(children: [Expanded(child: _btn('Reject', const Color(0xFFEF4444), Icons.close, () => _snack('Leave rejected', const Color(0xFFEF4444)))),
                 const SizedBox(width: 10), Expanded(child: _btn('Approve', const Color(0xFF10B981), Icons.check, () => _snack('Leave approved', const Color(0xFF10B981))))]),
@@ -74,6 +80,9 @@ class _ApprovalCenterState extends State<ApprovalCenter> with SingleTickerProvid
   }
 
   Widget _claimTab() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     final pending = MockDataService.claimRequests.where((c) => c.status == 'Pending').toList();
     return ListView(physics: const BouncingScrollPhysics(), padding: const EdgeInsets.symmetric(horizontal: 20),
       children: [AnimationLimiter(child: Column(children: List.generate(pending.length, (i) {
@@ -83,21 +92,21 @@ class _ApprovalCenterState extends State<ApprovalCenter> with SingleTickerProvid
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Container(width: 42, height: 42, decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [const Color(0xFFF59E0B).withOpacity(0.2), const Color(0xFF06B6D4).withOpacity(0.2)])),
-                  child: Center(child: Text(c.employeeName.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)))),
+                  child: Center(child: Text(c.employeeName.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: onSurface, fontWeight: FontWeight.w600, fontSize: 14)))),
                 const SizedBox(width: 12),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(c.employeeName, style: GoogleFonts.poppins(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
-                  Text('${c.category} · ${DateFormat('dd MMM yyyy').format(c.receiptDate)}', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 12)),
+                  Text(c.employeeName, style: GoogleFonts.poppins(color: onSurface, fontSize: 15, fontWeight: FontWeight.w600)),
+                  Text('${c.category} · ${DateFormat('dd MMM yyyy').format(c.receiptDate)}', style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 12)),
                 ])),
-                Text('RM ${c.amount.toStringAsFixed(2)}', style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                Text('RM ${c.amount.toStringAsFixed(2)}', style: GoogleFonts.poppins(color: onSurface, fontSize: 16, fontWeight: FontWeight.w700)),
               ]),
               const SizedBox(height: 10),
-              Text(c.description, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 13)),
+              Text(c.description, style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 13)),
               const SizedBox(height: 14),
-              Container(height: 70, width: double.infinity, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: const Color(0xFF1E293B), border: Border.all(color: const Color(0xFF334155))),
+              Container(height: 70, width: double.infinity, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: isDark ? const Color(0xFF1E293B) : Colors.white, border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0))),
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(Icons.receipt, color: const Color(0xFF475569), size: 28), const SizedBox(width: 8),
-                  Text('Receipt attached', style: GoogleFonts.poppins(color: const Color(0xFF475569), fontSize: 13)),
+                  Icon(Icons.receipt, color: isDark ? const Color(0xFF475569) : onSurfaceVariant, size: 28), const SizedBox(width: 8),
+                  Text('Receipt attached', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : onSurfaceVariant, fontSize: 13)),
                 ])),
               const SizedBox(height: 14),
               Row(children: [Expanded(child: _btn('Reject', const Color(0xFFEF4444), Icons.close, () => _snack('Claim rejected', const Color(0xFFEF4444)))),

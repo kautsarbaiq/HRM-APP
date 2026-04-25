@@ -45,6 +45,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       body: MeshGradientBg(
         child: SafeArea(
@@ -75,38 +77,46 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 // Login card
                 GlassCard(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Welcome Back', style: GoogleFonts.poppins(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700)),
-                    Text('Sign in to continue', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
+                    Text('Welcome Back', style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 22, fontWeight: FontWeight.w700)),
+                    Text('Sign in to continue', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 14)),
                     const SizedBox(height: 24),
                     // Email
-                    Text('Email', style: GoogleFonts.poppins(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
+                    Text('Email', style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 13, fontWeight: FontWeight.w500)),
                     const SizedBox(height: 6),
                     Container(
-                      decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFF334155))),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                      ),
                       child: TextField(
                         controller: _emailCtrl,
-                        style: GoogleFonts.poppins(color: Colors.white, fontSize: 14),
+                        style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14),
                         decoration: InputDecoration(
-                          hintText: 'Enter your email', hintStyle: GoogleFonts.poppins(color: const Color(0xFF475569)),
-                          prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF94A3B8), size: 20),
+                          hintText: 'Enter your email', hintStyle: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : const Color(0xFF64748B)),
+                          prefixIcon: Icon(Icons.email_outlined, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF0F172A), size: 20),
                           border: InputBorder.none, contentPadding: const EdgeInsets.all(16),
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
                     // Password
-                    Text('Password', style: GoogleFonts.poppins(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
+                    Text('Password', style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 13, fontWeight: FontWeight.w500)),
                     const SizedBox(height: 6),
                     Container(
-                      decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFF334155))),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                      ),
                       child: TextField(
                         controller: _passCtrl, obscureText: _obscure,
-                        style: GoogleFonts.poppins(color: Colors.white, fontSize: 14),
+                        style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14),
                         decoration: InputDecoration(
-                          hintText: 'Enter password', hintStyle: GoogleFonts.poppins(color: const Color(0xFF475569)),
-                          prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF94A3B8), size: 20),
+                          hintText: 'Enter password', hintStyle: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : const Color(0xFF64748B)),
+                          prefixIcon: Icon(Icons.lock_outline, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF0F172A), size: 20),
                           suffixIcon: IconButton(
-                            icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: const Color(0xFF94A3B8), size: 20),
+                            icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF0F172A), size: 20),
                             onPressed: () => setState(() => _obscure = !_obscure),
                           ),
                           border: InputBorder.none, contentPadding: const EdgeInsets.all(16),
@@ -120,7 +130,13 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         onPressed: _login,
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
                         child: Ink(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), gradient: const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)])),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            gradient: isDark 
+                              ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)])
+                              : null,
+                            color: isDark ? null : const Color(0xFF0F172A),
+                          ),
                           child: Container(alignment: Alignment.center, child: Text('Sign In', style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600))),
                         ),
                       ),
@@ -129,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 ),
                 const SizedBox(height: 24),
                 // Biometric login
-                Text('or sign in with', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 13)),
+                Text('or sign in with', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 13)),
                 const SizedBox(height: 16),
                 AnimatedBuilder(
                   animation: _bioScale,
@@ -140,16 +156,21 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                       width: 64, height: 64,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.15),
-                        border: Border.all(color: _isBioScanning ? const Color(0xFF06B6D4) : const Color(0xFF334155), width: _isBioScanning ? 2 : 1),
-                        boxShadow: _isBioScanning ? [BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.3), blurRadius: 20, spreadRadius: 4)] : null,
+                        color: isDark ? Colors.white.withOpacity(0.15) : Colors.transparent,
+                        border: Border.all(
+                          color: _isBioScanning 
+                            ? (isDark ? const Color(0xFF06B6D4) : const Color(0xFF0F172A)) 
+                            : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)), 
+                          width: _isBioScanning ? 2 : 1
+                        ),
+                        boxShadow: _isBioScanning ? [BoxShadow(color: isDark ? const Color(0xFF06B6D4).withOpacity(0.3) : const Color(0xFF0F172A).withOpacity(0.3), blurRadius: 20, spreadRadius: 4)] : null,
                       ),
-                      child: Icon(Icons.fingerprint, color: _isBioScanning ? const Color(0xFF06B6D4) : const Color(0xFF94A3B8), size: 32),
+                      child: Icon(Icons.fingerprint, color: _isBioScanning ? (isDark ? const Color(0xFF06B6D4) : const Color(0xFF0F172A)) : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF0F172A)), size: 32),
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(_isBioScanning ? 'Scanning...' : 'Touch to authenticate', style: GoogleFonts.poppins(color: _isBioScanning ? const Color(0xFF06B6D4) : const Color(0xFF94A3B8), fontSize: 12)),
+                Text(_isBioScanning ? 'Scanning...' : 'Touch to authenticate', style: GoogleFonts.poppins(color: _isBioScanning ? (isDark ? const Color(0xFF06B6D4) : const Color(0xFF0F172A)) : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)), fontSize: 12)),
               ]),
             ),
           ),

@@ -16,7 +16,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    var emps = MockDataService.employeesByDivision(_selectedDiv);
+    var emps = MockDataService.employeesByDivision(_selectedDiv).toList();
     emps.sort((a, b) => b.performanceScore.compareTo(a.performanceScore));
     return SafeArea(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(padding: const EdgeInsets.fromLTRB(20, 28, 20, 0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

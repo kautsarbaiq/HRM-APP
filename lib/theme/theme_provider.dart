@@ -16,13 +16,13 @@ class ThemeProvider extends ChangeNotifier {
 
   static final ThemeData _lightTheme = ThemeData(
     brightness: Brightness.light,
-    scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+    scaffoldBackgroundColor: const Color(0xFFFFFFFF),
     colorScheme: const ColorScheme.light(
-      primary: Color(0xFF06B6D4),
-      secondary: Color(0xFF8B5CF6),
+      primary: Color(0xFF0F172A),
+      secondary: Color(0xFF0F172A),
       surface: Color(0xFFFFFFFF),
       onSurface: Color(0xFF0F172A),
-      onSurfaceVariant: Color(0xFF94A3B8),
+      onSurfaceVariant: Color(0xFF64748B),
       outline: Color(0xFFE2E8F0),
     ),
     useMaterial3: true,

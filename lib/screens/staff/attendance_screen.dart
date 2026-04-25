@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/glow_indicator.dart';
+import 'face_scan_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
@@ -29,28 +30,42 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
   @override
   void dispose() { _scanCtrl.dispose(); _pulseCtrl.dispose(); super.dispose(); }
 
-  void _startScan() {
-    setState(() => _isScanning = true);
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        setState(() { _isScanning = false; _isCheckedIn = true; });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Check-in successful!', style: GoogleFonts.poppins(color: Colors.white)),
-          backgroundColor: const Color(0xFF10B981), behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ));
-      }
-    });
+  void _startScan() async {
+    // Open the Face Scan screen
+    final result = await Navigator.push<bool>(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => FaceScanScreen(
+          onSuccess: () {},
+        ),
+        transitionsBuilder: (_, anim, __, child) {
+          return FadeTransition(opacity: anim, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
+    
+    if (result == true && mounted) {
+      setState(() { _isCheckedIn = true; });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Check-in successful! Face verified ✓', style: GoogleFonts.poppins(color: Colors.white)),
+        backgroundColor: const Color(0xFF10B981), behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return SafeArea(child: SingleChildScrollView(
       physics: const BouncingScrollPhysics(), padding: const EdgeInsets.all(20),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const SizedBox(height: 8),
-        Text('Smart Check-in', style: GoogleFonts.poppins(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700)),
-        Text('Use face recognition to check in', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
+        Text('Smart Check-in', style: GoogleFonts.poppins(color: onSurface, fontSize: 24, fontWeight: FontWeight.w700)),
+        Text('Use face recognition to check in', style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 14)),
         const SizedBox(height: 24),
         _cameraPreview(),
         const SizedBox(height: 20),
@@ -106,18 +121,21 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
   }
 
   Widget _geofenceStatus() {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return GlassCard(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(children: [
         const GlowIndicator(isActive: true, label: 'In Range'),
         const Spacer(),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Text('Office Area', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
-          Text('Geofencing Active', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 12)),
+          Text('Office Area', style: GoogleFonts.poppins(color: onSurface, fontSize: 14, fontWeight: FontWeight.w600)),
+          Text('Geofencing Active', style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 12)),
         ]),
       ]));
   }
 
   Widget _checkInBtn() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnimatedBuilder(animation: _pulseAnim, builder: (ctx, child) =>
       Transform.scale(scale: _isScanning ? 1.0 : _pulseAnim.value, child: child),
       child: SizedBox(width: double.infinity, height: 56, child: ElevatedButton(
@@ -125,8 +143,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
         style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
         child: Ink(
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(24),
-            gradient: (!_isCheckedIn && !_isScanning) ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]) : null,
-            color: _isCheckedIn ? const Color(0xFF10B981) : (_isScanning ? const Color(0xFF06B6D4).withOpacity(0.3) : null)),
+            gradient: (!_isCheckedIn && !_isScanning && isDark) ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]) : null,
+            color: _isCheckedIn ? const Color(0xFF10B981) : (_isScanning ? const Color(0xFF06B6D4).withOpacity(0.3) : (isDark ? null : const Color(0xFF0F172A)))),
           child: Container(alignment: Alignment.center, height: 56,
             child: Text(_isScanning ? 'Scanning...' : (_isCheckedIn ? '✓ Checked In' : 'Check In Now'),
               style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600))),
@@ -135,8 +153,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
   }
 
   Widget _todayLog() {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GlassCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text("Today's Log", style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+      Text("Today's Log", style: GoogleFonts.poppins(color: onSurface, fontSize: 16, fontWeight: FontWeight.w600)),
       const SizedBox(height: 12),
       _logRow('Check In', '08:30 AM', Icons.login, const Color(0xFF10B981)),
       const SizedBox(height: 8),
@@ -147,11 +166,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
   }
 
   Widget _logRow(String label, String time, IconData icon, Color color) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Row(children: [
       Icon(icon, color: color, size: 20), const SizedBox(width: 12),
-      Text(label, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14)),
+      Text(label, style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 14)),
       const Spacer(),
-      Text(time, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+      Text(time, style: GoogleFonts.poppins(color: onSurface, fontSize: 14, fontWeight: FontWeight.w600)),
     ]);
   }
 }
