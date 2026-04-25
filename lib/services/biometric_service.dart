@@ -1,25 +1,44 @@
-/// BiometricService — web-compatible abstraction layer for biometric authentication.
-/// On web: simulates a successful scan after a delay.
-/// On mobile: ready to wire into `local_auth` plugin.
+import 'package:local_auth/local_auth.dart';
+
+/// BiometricService — real biometric authentication using local_auth plugin.
+/// Supports fingerprint, face recognition, and iris on supported devices.
 class BiometricService {
+  static final LocalAuthentication _auth = LocalAuthentication();
+
   /// Check if biometric auth is available on this device.
-  /// Always returns true on web (simulated).
+  /// Returns true if the device supports biometrics and has enrolled credentials.
   static Future<bool> isAvailable() async {
-    // For mobile integration, replace with:
-    // final auth = LocalAuthentication();
-    // return await auth.canCheckBiometrics;
-    return true;
+    try {
+      final canCheck = await _auth.canCheckBiometrics;
+      final isSupported = await _auth.isDeviceSupported();
+      return canCheck && isSupported;
+    } catch (e) {
+      return false;
+    }
   }
 
-  /// Authenticate the user via biometrics.
-  /// Returns true on success, false on failure.
+  /// Returns the list of enrolled biometric types (face, fingerprint, iris).
+  static Future<List<BiometricType>> getAvailableBiometrics() async {
+    try {
+      return await _auth.getAvailableBiometrics();
+    } catch (e) {
+      return <BiometricType>[];
+    }
+  }
+
+  /// Authenticate the user via the device's native biometric dialog.
+  /// Returns true on success, false on failure or cancellation.
   static Future<bool> authenticate({String reason = 'Verify your identity'}) async {
-    // Simulate a 2-second biometric scan
-    await Future.delayed(const Duration(milliseconds: 2000));
-    
-    // For mobile integration, replace with:
-    // final auth = LocalAuthentication();
-    // return await auth.authenticate(localizedReason: reason);
-    return true;
+    try {
+      return await _auth.authenticate(
+        localizedReason: reason,
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: false,
+        ),
+      );
+    } catch (e) {
+      return false;
+    }
   }
 }
