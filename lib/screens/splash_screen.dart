@@ -90,8 +90,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       end: Alignment.bottomRight,
                       colors: isDark
                         ? [const Color(0xFF0F172A), const Color(0xFF1E293B), const Color(0xFF020617)]
-                        : [const Color(0xFFFFFFFF), const Color(0xFFF1F5F9), const Color(0xFF1E293B)],
-                      stops: [0.0, 0.5 * _gradientSweep.value, 1.0],
+                        : [const Color(0xFFFFFFFF), const Color(0xFFF0F9FF), const Color(0xFFE0F2FE)],
+                      stops: const [0.0, 0.6, 1.0],
                     ),
                   ),
                 ),

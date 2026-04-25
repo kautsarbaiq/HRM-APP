@@ -87,14 +87,14 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF1E293B) : Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF06B6D4).withOpacity(0.3)),
                       ),
                       child: TextField(
                         controller: _emailCtrl,
                         style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14),
                         decoration: InputDecoration(
                           hintText: 'Enter your email', hintStyle: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : const Color(0xFF64748B)),
-                          prefixIcon: Icon(Icons.email_outlined, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF0F172A), size: 20),
+                          prefixIcon: Icon(Icons.email_outlined, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF06B6D4), size: 20),
                           border: InputBorder.none, contentPadding: const EdgeInsets.all(16),
                         ),
                       ),
@@ -107,16 +107,16 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF1E293B) : Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)),
+                        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFF06B6D4).withOpacity(0.3)),
                       ),
                       child: TextField(
                         controller: _passCtrl, obscureText: _obscure,
                         style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14),
                         decoration: InputDecoration(
                           hintText: 'Enter password', hintStyle: GoogleFonts.poppins(color: isDark ? const Color(0xFF475569) : const Color(0xFF64748B)),
-                          prefixIcon: Icon(Icons.lock_outline, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF0F172A), size: 20),
+                          prefixIcon: Icon(Icons.lock_outline, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF06B6D4), size: 20),
                           suffixIcon: IconButton(
-                            icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF0F172A), size: 20),
+                            icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF06B6D4), size: 20),
                             onPressed: () => setState(() => _obscure = !_obscure),
                           ),
                           border: InputBorder.none, contentPadding: const EdgeInsets.all(16),
@@ -132,12 +132,12 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         child: Ink(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(24),
-                            gradient: isDark 
-                              ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)])
-                              : null,
-                            color: isDark ? null : const Color(0xFF0F172A),
+                            gradient: const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]),
+                            boxShadow: [
+                              BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))
+                            ],
                           ),
-                          child: Container(alignment: Alignment.center, child: Text('Sign In', style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600))),
+                          child: Container(alignment: Alignment.center, child: Text('Sign In', style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700))),
                         ),
                       ),
                     ),
@@ -159,13 +159,13 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         color: isDark ? Colors.white.withOpacity(0.15) : Colors.transparent,
                         border: Border.all(
                           color: _isBioScanning 
-                            ? (isDark ? const Color(0xFF06B6D4) : const Color(0xFF0F172A)) 
-                            : (isDark ? const Color(0xFF334155) : const Color(0xFF0F172A)), 
+                            ? (isDark ? const Color(0xFF06B6D4) : const Color(0xFF06B6D4)) 
+                            : (isDark ? const Color(0xFF334155) : const Color(0xFF06B6D4).withOpacity(0.5)), 
                           width: _isBioScanning ? 2 : 1
                         ),
-                        boxShadow: _isBioScanning ? [BoxShadow(color: isDark ? const Color(0xFF06B6D4).withOpacity(0.3) : const Color(0xFF0F172A).withOpacity(0.3), blurRadius: 20, spreadRadius: 4)] : null,
+                        boxShadow: _isBioScanning ? [BoxShadow(color: isDark ? const Color(0xFF06B6D4).withOpacity(0.3) : const Color(0xFF06B6D4).withOpacity(0.3), blurRadius: 20, spreadRadius: 4)] : null,
                       ),
-                      child: Icon(Icons.fingerprint, color: _isBioScanning ? (isDark ? const Color(0xFF06B6D4) : const Color(0xFF0F172A)) : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF0F172A)), size: 32),
+                      child: Icon(Icons.fingerprint, color: _isBioScanning ? (isDark ? const Color(0xFF06B6D4) : const Color(0xFF06B6D4)) : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF06B6D4)), size: 32),
                     ),
                   ),
                 ),
