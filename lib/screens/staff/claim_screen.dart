@@ -21,6 +21,13 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
   late AnimationController _scanCtrl;
   late Animation<double> _scanAnim;
 
+  final _targetCtrl = TextEditingController();
+  final _reasonCtrl = TextEditingController();
+  final _amountCtrl = TextEditingController();
+  DateTime? _selectedDate;
+  String _selectedCategory = 'Travel';
+  final _categories = ['Travel', 'Meals', 'Equipment', 'Medical', 'Other'];
+
   @override
   void initState() {
     super.initState();
@@ -29,25 +36,26 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
   }
 
   @override
-  void dispose() { _scanCtrl.dispose(); super.dispose(); }
+  void dispose() { 
+    _scanCtrl.dispose(); 
+    _targetCtrl.dispose();
+    _reasonCtrl.dispose();
+    _amountCtrl.dispose();
+    super.dispose(); 
+  }
 
   void _startScan() async {
     final result = await Navigator.push<ReceiptData>(
       context,
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => const OcrScannerScreen(),
-        transitionsBuilder: (_, anim, __, child) {
-          return FadeTransition(opacity: anim, child: child);
-        },
+        transitionsBuilder: (_, anim, __, child) => FadeTransition(opacity: anim, child: child),
         transitionDuration: const Duration(milliseconds: 300),
       ),
     );
     
     if (result != null && mounted) {
-      setState(() {
-        _scanComplete = true;
-        _ocrData = result;
-      });
+      setState(() { _scanComplete = true; _ocrData = result; });
     }
   }
 
@@ -65,6 +73,8 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
         Text('Upload receipts and track claims', style: GoogleFonts.poppins(color: onSurfaceVar, fontSize: 14)),
         const SizedBox(height: 24),
         _scannerArea(),
+        const SizedBox(height: 16),
+        _manualInputBtn(context),
         const SizedBox(height: 20),
         if (_scanComplete) _ocrResult(),
         if (_scanComplete) const SizedBox(height: 20),
@@ -79,7 +89,7 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
 
   Widget _scannerArea() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return GlassCard(padding: const EdgeInsets.all(8), child: AspectRatio(aspectRatio: 4 / 3,
+    return GlassCard(padding: const EdgeInsets.all(8), child: AspectRatio(aspectRatio: 4 / 1.5,
       child: ClipRRect(borderRadius: BorderRadius.circular(20), child: Stack(children: [
         Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
           gradient: RadialGradient(
@@ -88,17 +98,109 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
               : [const Color(0xFFF8FAFC), const Color(0xFFF1F5F9), const Color(0xFFE2E8F0)],
             stops: const [0, 0.6, 1]))),
         Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(_isScanning ? Icons.document_scanner : Icons.receipt_long, size: 60, color: (isDark ? Colors.white : const Color(0xFF94A3B8)).withOpacity(_isScanning ? 0.4 : 0.2)),
-          const SizedBox(height: 12),
-          Text(_isScanning ? 'Scanning receipt...' : 'Tap to scan receipt', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 14)),
+          Icon(_isScanning ? Icons.document_scanner : Icons.receipt_long, size: 40, color: (isDark ? Colors.white : const Color(0xFF94A3B8)).withOpacity(_isScanning ? 0.4 : 0.2)),
+          const SizedBox(height: 8),
+          Text(_isScanning ? 'Scanning receipt...' : 'Tap to scan receipt', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500)),
         ])),
         if (_isScanning) AnimatedBuilder(animation: _scanAnim, builder: (ctx, _) =>
-          Positioned(top: _scanAnim.value * 200, left: 20, right: 20,
+          Positioned(top: _scanAnim.value * 100, left: 20, right: 20,
             child: Container(height: 2, decoration: BoxDecoration(
               gradient: LinearGradient(colors: [Colors.transparent, const Color(0xFFF59E0B).withOpacity(0.8), Colors.transparent]),
               boxShadow: [BoxShadow(color: const Color(0xFFF59E0B).withOpacity(0.3), blurRadius: 10, spreadRadius: 2)])))),
         if (!_isScanning && !_scanComplete) Positioned.fill(child: Material(color: Colors.transparent, child: InkWell(borderRadius: BorderRadius.circular(20), onTap: _startScan))),
       ]))));
+  }
+
+  Widget _manualInputBtn(BuildContext ctx) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return SizedBox(width: double.infinity, height: 50, child: OutlinedButton(
+      onPressed: () => _showManualInputSheet(ctx),
+      style: OutlinedButton.styleFrom(
+        side: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(Icons.edit_note, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), size: 20),
+        const SizedBox(width: 8),
+        Text('Input Manually', style: GoogleFonts.poppins(color: onSurface, fontSize: 14, fontWeight: FontWeight.w600)),
+      ]),
+    ));
+  }
+
+  void _showManualInputSheet(BuildContext ctx) {
+    showModalBottomSheet(
+      context: ctx, isScrollControlled: true, backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(builder: (context, setModalState) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final onSurface = Theme.of(context).colorScheme.onSurface;
+        final onSurfaceVar = Theme.of(context).colorScheme.onSurfaceVariant;
+        final outlineColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+        final fieldBg = isDark ? const Color(0xFF1E293B) : Colors.white.withOpacity(0.8);
+
+        return Container(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          decoration: BoxDecoration(color: isDark ? const Color(0xFF0F172A) : Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(32))),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const SizedBox(height: 12),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: onSurfaceVar.withOpacity(0.3), borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 24),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Manual Claim Input', style: GoogleFonts.poppins(color: onSurface, fontSize: 20, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 20),
+              _inputField('Purpose / Merchant', _targetCtrl, Icons.store, isDark, fieldBg, outlineColor),
+              const SizedBox(height: 12),
+              _inputField('Reason', _reasonCtrl, Icons.description, isDark, fieldBg, outlineColor, maxLines: 2),
+              const SizedBox(height: 12),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
+                child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                  value: _selectedCategory, isExpanded: true, dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  style: GoogleFonts.poppins(color: onSurface, fontSize: 14),
+                  icon: Icon(Icons.keyboard_arrow_down, color: onSurfaceVar),
+                  items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: onSurface)))).toList(),
+                  onChanged: (v) => setModalState(() => _selectedCategory = v!),
+                ))),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () async {
+                  final picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now().subtract(const Duration(days: 90)), lastDate: DateTime.now());
+                  if (picked != null) setModalState(() => _selectedDate = picked);
+                },
+                child: Container(padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
+                  child: Row(children: [
+                    Icon(Icons.calendar_today, color: const Color(0xFFF59E0B), size: 20), const SizedBox(width: 12),
+                    Text(_selectedDate != null ? DateFormat('dd MMM yyyy').format(_selectedDate!) : 'Select transaction date',
+                      style: GoogleFonts.poppins(color: _selectedDate != null ? onSurface : onSurfaceVar, fontSize: 14)),
+                  ])),
+              ),
+              const SizedBox(height: 12),
+              _inputField('Amount (RM)', _amountCtrl, Icons.payments, isDark, fieldBg, outlineColor, keyboardType: TextInputType.number),
+              const SizedBox(height: 24),
+              SizedBox(width: double.infinity, height: 56, child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Claim submitted manually!', style: GoogleFonts.poppins(color: Colors.white)), backgroundColor: const Color(0xFF10B981), behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
+                child: Ink(decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: const Color(0xFF10B981), boxShadow: [BoxShadow(color: const Color(0xFF10B981).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))]),
+                  child: Container(alignment: Alignment.center, child: Text('Submit Claim', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)))),
+              )),
+              const SizedBox(height: 40),
+            ])),
+          ]),
+        );
+      }),
+    );
+  }
+
+  Widget _inputField(String label, TextEditingController ctrl, IconData icon, bool isDark, Color bg, Color outline, {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVar = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Container(decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outline)),
+      child: TextField(controller: ctrl, maxLines: maxLines, keyboardType: keyboardType, style: GoogleFonts.poppins(color: onSurface, fontSize: 14),
+        decoration: InputDecoration(prefixIcon: Icon(icon, color: const Color(0xFF06B6D4), size: 20), hintText: label, hintStyle: GoogleFonts.poppins(color: onSurfaceVar, fontSize: 14), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12))));
   }
 
   Widget _ocrResult() {
