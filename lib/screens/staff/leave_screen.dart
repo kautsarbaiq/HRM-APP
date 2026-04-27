@@ -16,10 +16,19 @@ class LeaveScreen extends StatefulWidget {
 
 class _LeaveScreenState extends State<LeaveScreen> {
   DateTimeRange? _selectedRange;
-  String _selectedType = 'Annual';
+  String _selectedType = 'Annual Leave';
   XFile? _pickedImage;
   final _reasonCtrl = TextEditingController();
-  final _types = ['Annual', 'Sick', 'Personal', 'Maternity'];
+  final _types = [
+    'Annual Leave',
+    'Medical Leave*',
+    'Maternity/ Paternity*',
+    'Compassionate*',
+    'Marriage Leave*',
+    'Study/ Exam Leave*',
+    'Unpaid Leave',
+    'Emergency / Reason:'
+  ];
   final _picker = ImagePicker();
 
   @override
@@ -117,10 +126,12 @@ class _LeaveScreenState extends State<LeaveScreen> {
                   ])),
               ),
               const SizedBox(height: 12),
-              Container(decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
-                child: TextField(controller: _reasonCtrl, maxLines: 3, style: GoogleFonts.poppins(color: onSurface, fontSize: 14),
-                  decoration: InputDecoration(hintText: 'Reason for leave...', hintStyle: GoogleFonts.poppins(color: onSurfaceVariant), border: InputBorder.none, contentPadding: const EdgeInsets.all(16)))),
-              const SizedBox(height: 12),
+              if (_selectedType == 'Emergency / Reason:') ...[
+                Container(decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
+                  child: TextField(controller: _reasonCtrl, maxLines: 3, style: GoogleFonts.poppins(color: onSurface, fontSize: 14),
+                    decoration: InputDecoration(hintText: 'Emergency reason details...', hintStyle: GoogleFonts.poppins(color: onSurfaceVariant), border: InputBorder.none, contentPadding: const EdgeInsets.all(16)))),
+                const SizedBox(height: 12),
+              ],
               // Supporting Picture Input
               GestureDetector(
                 onTap: () async {
