@@ -20,3 +20,12 @@
 -keep class io.flutter.view.** { *; }
 -keep class io.flutter.** { *; }
 -keep class io.flutter.plugins.** { *; }
+
+# Google Maps
+-keep class com.google.android.gms.maps.** { *; }
+-keep class com.google.android.gms.location.** { *; }
+-dontwarn com.google.android.gms.**
+
+# Geolocator
+-keep class com.baseflow.geolocator.** { *; }
+-dontwarn com.baseflow.geolocator.**

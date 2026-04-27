@@ -86,6 +86,9 @@ class _StaffHomeState extends State<StaffHome> {
 
   Widget _header(emp) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryBlue = const Color(0xFF06B6D4);
+    final profileGradient = LinearGradient(colors: [primaryBlue, primaryBlue]);
+
     return Row(children: [
       Expanded(
         child: GestureDetector(
@@ -101,8 +104,8 @@ class _StaffHomeState extends State<StaffHome> {
           ))),
           child: Row(children: [
             Container(width: 56, height: 56,
-              decoration: BoxDecoration(shape: BoxShape.circle, gradient: const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]),
-                boxShadow: [BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.25), blurRadius: 16, offset: const Offset(0, 4))]),
+              decoration: BoxDecoration(shape: BoxShape.circle, gradient: profileGradient,
+                boxShadow: [BoxShadow(color: primaryBlue.withOpacity(0.25), blurRadius: 16, offset: const Offset(0, 4))]),
               child: Center(child: Text(emp.name.split(' ').map((n) => n[0]).take(2).join(), style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)))),
             const SizedBox(width: 16),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -121,6 +124,9 @@ class _StaffHomeState extends State<StaffHome> {
 
   Widget _salaryCounter() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryBlue = const Color(0xFF06B6D4);
+    final textGradient = LinearGradient(colors: [primaryBlue, primaryBlue]);
+
     return GlassCard(
       child: Column(children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -131,7 +137,7 @@ class _StaffHomeState extends State<StaffHome> {
         ]),
         const SizedBox(height: 12),
         ShaderMask(
-          shaderCallback: (b) => const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]).createShader(b),
+          shaderCallback: (b) => textGradient.createShader(b),
           child: Text('RM ${_earnedToday.toStringAsFixed(2)}', style: GoogleFonts.poppins(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w800)),
         ),
         Text('earned today', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 12)),
@@ -140,7 +146,7 @@ class _StaffHomeState extends State<StaffHome> {
           child: LinearProgressIndicator(
             value: (_earnedToday / MockDataService.currentEmployee.dailySalary).clamp(0, 1),
             backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9), minHeight: 6,
-            valueColor: const AlwaysStoppedAnimation(Color(0xFF06B6D4)),
+            valueColor: AlwaysStoppedAnimation(primaryBlue),
           ),
         ),
         const SizedBox(height: 4),
@@ -153,6 +159,10 @@ class _StaffHomeState extends State<StaffHome> {
   }
 
   Widget _attendanceCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryBlue = const Color(0xFF06B6D4);
+    final textGradient = LinearGradient(colors: [primaryBlue, primaryBlue]);
+
     return GlassCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text('Attendance Status', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14, fontWeight: FontWeight.w500)),
@@ -162,7 +172,7 @@ class _StaffHomeState extends State<StaffHome> {
       ]),
       const SizedBox(height: 12),
       Center(child: ShaderMask(
-        shaderCallback: (b) => const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]).createShader(b),
+        shaderCallback: (b) => textGradient.createShader(b),
         child: Text(_currentTime, style: GoogleFonts.poppins(color: Colors.white, fontSize: 42, fontWeight: FontWeight.w700, letterSpacing: 4)),
       )),
       Center(child: Text(_currentDate, style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 12))),

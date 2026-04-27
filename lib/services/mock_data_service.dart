@@ -81,4 +81,34 @@ class MockDataService {
   static int get totalEmployees => allEmployees.length;
 
   static List<String> get divisions => ['All', 'IT', 'Finance', 'HR', 'Production'];
+
+  // Geofenced office locations
+  static List<GeofenceLocation> get authorizedLocations => const [
+    GeofenceLocation(
+      name: 'HQ Office - KL Sentral',
+      latitude: -6.1754,
+      longitude: 106.8272,
+      radiusMeters: 50.0,
+    ),
+    GeofenceLocation(
+      name: 'Branch - Penang Office',
+      latitude: 5.4164,
+      longitude: 100.3327,
+      radiusMeters: 100.0,
+    ),
+    GeofenceLocation(
+      name: 'Branch - JB Office',
+      latitude: 1.4927,
+      longitude: 103.7414,
+      radiusMeters: 75.0,
+    ),
+  ];
+}
+
+class GeofenceLocation {
+  final String name;
+  final double latitude;
+  final double longitude;
+  final double radiusMeters;
+  const GeofenceLocation({required this.name, required this.latitude, required this.longitude, required this.radiusMeters});
 }

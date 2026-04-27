@@ -1,10 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
         android:label="ess_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Google Maps API Key (replace with your actual key) -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD_dtn5MeV14PNGng1LPF81UKOEJkwKsl8"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

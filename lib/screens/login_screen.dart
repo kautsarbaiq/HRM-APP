@@ -54,25 +54,24 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                // Malaysia flag accent + logo
+                // Company Logo
                 Container(
-                  width: 80, height: 80,
+                  width: 100, height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]),
-                    boxShadow: [BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.3), blurRadius: 30, offset: const Offset(0, 8))],
+                    boxShadow: [BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.2), blurRadius: 30, offset: const Offset(0, 8))],
                   ),
-                  child: const Icon(Icons.fingerprint, color: Colors.white, size: 40),
+                  child: ClipOval(child: Image.asset('assets/phh-icon-removebg-preview.png', fit: BoxFit.cover)),
                 ),
                 const SizedBox(height: 16),
                 ShaderMask(
-                  shaderCallback: (b) => const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]).createShader(b),
-                  child: Text('ESS', style: GoogleFonts.poppins(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: 6)),
+                  shaderCallback: (b) => LinearGradient(
+                    colors: isDark 
+                      ? [const Color(0xFF06B6D4), const Color(0xFF8B5CF6)]
+                      : [const Color(0xFF06B6D4), const Color(0xFF06B6D4)],
+                  ).createShader(b),
+                  child: Text('PHH ERP', style: GoogleFonts.poppins(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 4)),
                 ),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text('🇲🇾 ', style: GoogleFonts.poppins(fontSize: 16)),
-                  Text('Malaysia', style: GoogleFonts.poppins(color: const Color(0xFF94A3B8), fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 2)),
-                ]),
                 const SizedBox(height: 40),
                 // Login card
                 GlassCard(
@@ -132,7 +131,11 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         child: Ink(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(24),
-                            gradient: const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]),
+                            gradient: LinearGradient(
+                              colors: isDark 
+                                ? [const Color(0xFF06B6D4), const Color(0xFF8B5CF6)]
+                                : [const Color(0xFF06B6D4), const Color(0xFF06B6D4)],
+                            ),
                             boxShadow: [
                               BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))
                             ],

@@ -111,34 +111,25 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       child: Transform.scale(
                         scale: _logoScale.value,
                         child: Container(
-                          width: 110,
-                          height: 110,
+                          width: 140,
+                          height: 140,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)],
-                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF06B6D4).withOpacity(0.3),
+                                color: const Color(0xFF0047AB).withOpacity(0.2),
                                 blurRadius: 40,
                                 spreadRadius: 5,
                                 offset: const Offset(0, 8),
                               ),
-                              BoxShadow(
-                                color: const Color(0xFF8B5CF6).withOpacity(0.2),
-                                blurRadius: 60,
-                                spreadRadius: 10,
-                              ),
                             ],
                           ),
-                          child: Shimmer.fromColors(
-                            baseColor: Colors.white,
-                            highlightColor: Colors.white.withOpacity(0.5),
-                            period: const Duration(milliseconds: 2000),
-                            child: const Icon(Icons.fingerprint, color: Colors.white, size: 55),
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/phh-icon-removebg-preview.png',
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, _, __) => const Icon(Icons.business, color: Colors.white, size: 60),
+                            ),
                           ),
                         ),
                       ),
@@ -146,7 +137,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     
                     const SizedBox(height: 32),
                     
-                    // ESS text with blur-to-sharp reveal
+                    // PHH ERP text with blur-to-sharp reveal
                     Opacity(
                       opacity: _textFade.value,
                       child: ImageFiltered(
@@ -154,19 +145,21 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           ? ColorFilter.mode(Colors.transparent, BlendMode.dst)
                           : ColorFilter.mode(Colors.transparent, BlendMode.dst),
                         child: ShaderMask(
-                          shaderCallback: (b) => const LinearGradient(
-                            colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6), Color(0xFF06B6D4)],
+                          shaderCallback: (b) => LinearGradient(
+                            colors: isDark 
+                              ? [const Color(0xFFF1F5F9), const Color(0xFF94A3B8)]
+                              : [const Color(0xFF0F172A), const Color(0xFF334155)],
                           ).createShader(b),
                           child: Shimmer.fromColors(
-                            baseColor: Colors.white,
+                            baseColor: isDark ? Colors.white : const Color(0xFF0F172A),
                             highlightColor: const Color(0xFF06B6D4),
                             period: const Duration(milliseconds: 2500),
-                            child: Text('ESS',
+                            child: Text('PHH',
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
-                                fontSize: 48,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 12,
+                                fontSize: 54,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 8,
                               ),
                             ),
                           ),
@@ -174,24 +167,18 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       ),
                     ),
                     
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     
                     // Subtitle with delayed fade
                     Opacity(
                       opacity: _subtitleFade.value,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('🇲🇾 ', style: GoogleFonts.poppins(fontSize: 16)),
-                          Text('Employee Self-Service',
-                            style: GoogleFonts.poppins(
-                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                        ],
+                      child: Text('E R P   S O L U T I O N',
+                        style: GoogleFonts.poppins(
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 4,
+                        ),
                       ),
                     ),
                     
@@ -224,12 +211,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 child: Opacity(
                   opacity: _subtitleFade.value,
                   child: Text(
-                    'Powered by ESS Malaysia',
+                    'Powered by Bluesoft IOT Sdn Bhd',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
                       fontSize: 11,
                       letterSpacing: 1,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

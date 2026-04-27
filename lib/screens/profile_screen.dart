@@ -20,7 +20,9 @@ class ProfileScreen extends StatelessWidget {
         const SizedBox(height: 20),
         Container(width: 90, height: 90,
           decoration: BoxDecoration(shape: BoxShape.circle,
-            gradient: const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)]),
+            gradient: isDark 
+                ? const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF8B5CF6)])
+                : const LinearGradient(colors: [Color(0xFF06B6D4), Color(0xFF06B6D4)]),
             boxShadow: [BoxShadow(color: const Color(0xFF06B6D4).withOpacity(0.25), blurRadius: 24, offset: const Offset(0, 8))]),
           child: Center(child: Text(emp.name.split(' ').map((n) => n[0]).take(2).join(),
             style: GoogleFonts.poppins(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w700)))),
