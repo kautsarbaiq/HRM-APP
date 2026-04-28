@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -54,10 +55,32 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     Future.delayed(const Duration(milliseconds: 600), () => _logoCtrl.forward());
     Future.delayed(const Duration(milliseconds: 1200), () => _textCtrl.forward());
     
-    // Navigate after 3s
-    Future.delayed(const Duration(milliseconds: 3000), () {
-      if (mounted) Navigator.of(context).pushReplacementNamed('/login');
-    });
+    // Request permissions and then navigate
+    _initApp();
+  }
+
+  Future<void> _initApp() async {
+    // Start min splash delay
+    final splashFuture = Future.delayed(const Duration(milliseconds: 3500));
+    
+    // Request multiple permissions at once
+    try {
+      await [
+        Permission.camera,
+        Permission.location,
+        Permission.photos,
+        Permission.storage,
+      ].request();
+    } catch (e) {
+      debugPrint('Error requesting permissions: $e');
+    }
+    
+    // Ensure splash shows for at least 3.5s
+    await splashFuture;
+
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
   }
 
   @override

@@ -96,12 +96,12 @@ class MockDataService {
       longitude: 100.3327,
       radiusMeters: 100.0,
     ),
-    // GeofenceLocation(
-    //   name: 'Branch - JB Office',
-    //   latitude: -6.525488,
-    //   longitude: 107.037861,
-    //   radiusMeters: 700.0,
-    // ),
+    GeofenceLocation(
+      name: 'Branch - JB Office',
+      latitude: -6.525488,
+      longitude: 107.037861,
+      radiusMeters: 700.0,
+    ),
   ];
 }
 
