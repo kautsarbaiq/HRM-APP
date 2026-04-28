@@ -86,9 +86,9 @@ class MockDataService {
   static List<GeofenceLocation> get authorizedLocations => const [
     GeofenceLocation(
       name: 'HQ Office - KL Sentral',
-      latitude: -6.1754,
-      longitude: 106.8272,
-      radiusMeters: 50.0,
+      latitude: 3.004142,
+      longitude: 101.533615,
+      radiusMeters: 700.0,
     ),
     GeofenceLocation(
       name: 'Branch - Penang Office',

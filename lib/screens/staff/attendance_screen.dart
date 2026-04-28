@@ -411,21 +411,31 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
         ]));
     }
 
+    final hasError = _locationStatus.contains('denied') || _locationStatus.contains('disabled') || _locationStatus.contains('Failed');
+
     return GlassCard(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(children: [
-        GlowIndicator(isActive: _isInRange, label: _isInRange ? 'In Range' : 'Out of Range'),
+        GlowIndicator(isActive: _isInRange, label: _isInRange ? 'In Range' : (hasError ? 'Error' : 'Out of Range')),
         const Spacer(),
         Flexible(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(
-            _isInRange ? _nearestOfficeName : 'Not in Office Area',
-            style: GoogleFonts.poppins(color: onSurface, fontSize: 13, fontWeight: FontWeight.w600),
+            _isInRange ? _nearestOfficeName : (hasError ? 'Location Error' : 'Not in Office Area'),
+            style: GoogleFonts.poppins(color: hasError ? const Color(0xFFEF4444) : onSurface, fontSize: 13, fontWeight: FontWeight.w600),
             maxLines: 1, overflow: TextOverflow.ellipsis,
           ),
           Text(
-            _isInRange ? 'Geofencing Active' : '${_distanceToOffice.toStringAsFixed(0)}m from office',
+            _isInRange ? 'Geofencing Active' : _locationStatus,
             style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 11),
+            textAlign: TextAlign.end,
           ),
         ])),
+        if (hasError) ...[
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: _initGeofence,
+            child: const Icon(Icons.refresh, color: Color(0xFF06B6D4), size: 20),
+          ),
+        ]
       ]));
   }
 
