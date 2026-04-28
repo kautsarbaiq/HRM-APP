@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -32,7 +34,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
   bool _isLoadingLocation = true;
   String _locationStatus = 'Checking location...';
   String _nearestOfficeName = '';
-  double _distanceToOffice = 0;
+  double _distanceToOffice = double.infinity; // Start at infinity so button is DISABLED until GPS ready
   Position? _userPosition;
   GeofenceLocation? _nearestLocation;
   GoogleMapController? _mapController;
@@ -109,7 +111,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
   void _startLocationUpdates() {
     _positionStream?.cancel();
     _positionStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 5),
+      locationSettings: AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 0,
+        intervalDuration: Duration(seconds: 2),
+        foregroundNotificationConfig: ForegroundNotificationConfig(
+          notificationText: "Tracking location for attendance",
+          notificationTitle: "PHH ERP Active",
+          enableWakeLock: true,
+        ),
+      ),
     ).listen((Position position) {
       if (!mounted) return;
 
@@ -118,7 +129,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
       GeofenceLocation? nearest;
 
       for (final loc in locations) {
-        final dist = GeofenceService.calculateDistance(
+        final dist = Geolocator.distanceBetween(
           position.latitude, position.longitude,
           loc.latitude, loc.longitude,
         );
@@ -128,17 +139,36 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
         }
       }
 
-      final inRange = nearest != null && minDist <= nearest.radiusMeters;
+      // 10-meter buffer to handle GPS jitters
+      final buffer = 10.0; 
+      final double radius = nearest?.radiusMeters ?? 700.0;
+      final bool inRange = (minDist <= (radius + buffer));
 
       setState(() {
         _userPosition = position;
         _isInRange = inRange;
         _distanceToOffice = minDist;
         _nearestLocation = nearest;
-        _nearestOfficeName = nearest?.name ?? 'Unknown';
-        _locationStatus = inRange
-            ? 'You are within the office area'
-            : '${minDist.toStringAsFixed(0)}m away from ${nearest?.name ?? "office"}';
+        _nearestOfficeName = nearest?.name ?? 'Branch Office';
+        
+        if (inRange) {
+          _locationStatus = 'In Range of $_nearestOfficeName';
+        } else {
+          _locationStatus = '${minDist.toStringAsFixed(0)}m from $_nearestOfficeName';
+        }
+      });
+
+      // MOVE MAP to follow user
+      if (_mapController != null) {
+        _mapController!.animateCamera(CameraUpdate.newLatLng(
+          LatLng(position.latitude, position.longitude),
+        ));
+      }
+    }, onError: (error) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingLocation = false;
+        _locationStatus = 'Location Error: ${error.toString()}';
       });
     });
   }
@@ -153,11 +183,25 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
   }
 
   void _startScan({required bool isCheckOut}) async {
-    if (!_isInRange && !isCheckOut) {
-      _showOutOfRangeDialog();
+    // SECURITY GATE 1: Block if location is still loading
+    if (_isLoadingLocation) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Please wait, verifying your location...', style: GoogleFonts.poppins(color: Colors.white)),
+        backgroundColor: const Color(0xFF0F172A), behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ));
       return;
     }
 
+    // SECURITY GATE 2: Absolute distance-based backend validation
+    final double currentRadius = _nearestLocation?.radiusMeters ?? 700.0;
+    final bool isActuallyReady = _distanceToOffice <= (currentRadius + 10.0);
+
+    if (!isActuallyReady) {
+      _showOutOfRangeDialog();
+      return;
+    }
+    
     final result = await Navigator.push<bool>(
       context,
       PageRouteBuilder(
@@ -309,10 +353,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
     // Add user marker
     if (_userPosition != null) {
       markers.add(Marker(
-        markerId: const MarkerId('user'),
-        position: userLatLng,
-        infoWindow: const InfoWindow(title: 'You are here'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        markerId: const MarkerId('user_pos'),
+        position: LatLng(_userPosition!.latitude, _userPosition!.longitude),
+        infoWindow: const InfoWindow(title: 'Your Current Location'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ));
     }
 
@@ -353,6 +397,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
               zoomControlsEnabled: false,
               mapToolbarEnabled: false,
               compassEnabled: false,
+              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+                Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
+              },
               onMapCreated: (controller) {
                 _mapController = controller;
                 if (isDark) {
@@ -395,7 +442,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
   Widget _geofenceStatus() {
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Use the same logic as the action button for consistency
+    final double currentRadius = _nearestLocation?.radiusMeters ?? 700.0;
+    final bool isActuallyInRange = _distanceToOffice <= (currentRadius + 10.0);
 
     if (_isLoadingLocation) {
       return GlassCard(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -411,42 +461,44 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
         ]));
     }
 
-    final hasError = _locationStatus.contains('denied') || _locationStatus.contains('disabled') || _locationStatus.contains('Failed');
-
     return GlassCard(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(children: [
-        GlowIndicator(isActive: _isInRange, label: _isInRange ? 'In Range' : (hasError ? 'Error' : 'Out of Range')),
+        GlowIndicator(isActive: isActuallyInRange, label: isActuallyInRange ? 'In Range' : 'Out of Range'),
         const Spacer(),
         Flexible(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(
-            _isInRange ? _nearestOfficeName : (hasError ? 'Location Error' : 'Not in Office Area'),
-            style: GoogleFonts.poppins(color: hasError ? const Color(0xFFEF4444) : onSurface, fontSize: 13, fontWeight: FontWeight.w600),
+            isActuallyInRange ? _nearestOfficeName : 'Not in Office Area',
+            style: GoogleFonts.poppins(color: onSurface, fontSize: 13, fontWeight: FontWeight.w600),
             maxLines: 1, overflow: TextOverflow.ellipsis,
           ),
           Text(
-            _isInRange ? 'Geofencing Active' : _locationStatus,
+            isActuallyInRange ? 'Geofencing Active' : _locationStatus,
             style: GoogleFonts.poppins(color: onSurfaceVariant, fontSize: 11),
-            textAlign: TextAlign.end,
           ),
         ])),
-        if (hasError) ...[
-          const SizedBox(width: 12),
-          GestureDetector(
-            onTap: _initGeofence,
-            child: const Icon(Icons.refresh, color: Color(0xFF06B6D4), size: 20),
-          ),
-        ]
       ]));
   }
 
   Widget _actionButtons() {
+    // If location is still loading, always disable
+    if (_isLoadingLocation) {
+      return _btn(
+        label: 'Locating...', 
+        color1: const Color(0xFF334155), color2: const Color(0xFF1E293B),
+        isOut: false, enabled: false,
+      );
+    }
+    // SECURITY: Only enable if within radius + 10m buffer
+    final double currentRadius = _nearestLocation?.radiusMeters ?? 700.0;
+    final bool isReady = _distanceToOffice <= (currentRadius + 10.0);
+
     return Column(children: [
       if (!_isCheckedIn) _btn(
-        label: _isInRange ? 'Check In Now' : 'Outside Office Area',
-        color1: _isInRange ? const Color(0xFF22D3EE) : const Color(0xFF64748B),
-        color2: _isInRange ? const Color(0xFF06B6D4) : const Color(0xFF475569),
+        label: isReady ? 'Check In Now' : 'Outside Office Area',
+        color1: isReady ? const Color(0xFF22D3EE) : const Color(0xFF64748B),
+        color2: isReady ? const Color(0xFF06B6D4) : const Color(0xFF475569),
         isOut: false,
-        enabled: _isInRange,
+        enabled: isReady,
       ),
       if (_isCheckedIn) _slideBtn(),
     ]);

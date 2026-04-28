@@ -45,9 +45,9 @@ class GeofenceService {
   /// Get the user's current position.
   static Future<Position> getCurrentPosition() async {
     return await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
+      locationSettings: AndroidSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
+        forceLocationManager: true,
       ),
     );
   }
@@ -68,13 +68,29 @@ class GeofenceService {
 
   /// Check if the user is within any authorized geofence location.
   static Future<GeofenceResult> checkGeofence() async {
-    // Check permissions first
-    final permError = await checkPermissions();
-    if (permError != null) {
-      return GeofenceResult(isInRange: false, errorMessage: permError);
-    }
-
     try {
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      // 1. Check if location services are enabled
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return const GeofenceResult(distanceMeters: double.infinity, isInRange: false, errorMessage: 'Location services are disabled.');
+      }
+
+      // 2. Check and request permissions
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return const GeofenceResult(distanceMeters: double.infinity, isInRange: false, errorMessage: 'Location permissions are denied.');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        return const GeofenceResult(distanceMeters: double.infinity, isInRange: false, errorMessage: 'Location permissions are permanently denied.');
+      }
+
       final position = await getCurrentPosition();
       final locations = MockDataService.authorizedLocations;
 
@@ -82,9 +98,11 @@ class GeofenceService {
       GeofenceLocation? nearest;
 
       for (final loc in locations) {
-        final dist = calculateDistance(
-          position.latitude, position.longitude,
-          loc.latitude, loc.longitude,
+        final dist = Geolocator.distanceBetween(
+          position.latitude,
+          position.longitude,
+          loc.latitude,
+          loc.longitude,
         );
         if (dist < minDistance) {
           minDistance = dist;
@@ -92,7 +110,8 @@ class GeofenceService {
         }
       }
 
-      final isInRange = nearest != null && minDistance <= nearest.radiusMeters;
+      final buffer = 10.0;
+      final isInRange = nearest != null && minDistance <= (nearest.radiusMeters + buffer);
 
       return GeofenceResult(
         isInRange: isInRange,

@@ -83,7 +83,7 @@ class MockDataService {
   static List<String> get divisions => ['All', 'IT', 'Finance', 'HR', 'Production'];
 
   // Geofenced office locations
-  static List<GeofenceLocation> get authorizedLocations => const [
+  static const List<GeofenceLocation> authorizedLocations = [
     GeofenceLocation(
       name: 'HQ Office - KL Sentral',
       latitude: 3.004142,
@@ -96,12 +96,12 @@ class MockDataService {
       longitude: 100.3327,
       radiusMeters: 100.0,
     ),
-    GeofenceLocation(
-      name: 'Branch - JB Office',
-      latitude: 1.4927,
-      longitude: 103.7414,
-      radiusMeters: 75.0,
-    ),
+    // GeofenceLocation(
+    //   name: 'Branch - JB Office',
+    //   latitude: -6.525488,
+    //   longitude: 107.037861,
+    //   radiusMeters: 700.0,
+    // ),
   ];
 }
 
