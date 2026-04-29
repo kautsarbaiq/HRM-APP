@@ -239,7 +239,7 @@ class _FaceScanScreenState extends State<FaceScanScreen> with TickerProviderStat
             const Spacer(flex: 2),
             Padding(padding: const EdgeInsets.only(bottom: 40), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(Icons.shield_outlined, color: Colors.white.withOpacity(0.3), size: 14), const SizedBox(width: 6),
-              Text('Secured with ML Kit face verification', style: GoogleFonts.poppins(color: Colors.white.withOpacity(0.3), fontSize: 12)),
+              Text('Secured with AI face recognition', style: GoogleFonts.poppins(color: Colors.white.withOpacity(0.3), fontSize: 12)),
             ])),
           ]);
         },

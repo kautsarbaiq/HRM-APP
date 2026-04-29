@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:camera/camera.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/biometric_service.dart';
 import '../../services/camera_service.dart';
 
@@ -88,36 +87,40 @@ class _FaceEnrollScreenState extends State<FaceEnrollScreen> with TickerProvider
 
     String? imagePath;
 
-    // Capture image from camera (native only)
+    // SECURITY: Camera capture is mandatory for enrollment
     if (!kIsWeb && _cameraController != null && _cameraController!.value.isInitialized) {
       try {
         final XFile photo = await _cameraController!.takePicture();
         imagePath = photo.path;
       } catch (e) {
-        // Fallback to mock enrollment
+        if (!mounted) return;
+        _scanLineCtrl.stop();
+        _pulseCtrl.stop();
+        setState(() { _phase = -1; _status = 'Camera Error'; _subStatus = 'Could not capture image: $e'; });
+        return;
       }
+    } else if (!kIsWeb) {
+      if (!mounted) return;
+      _scanLineCtrl.stop();
+      _pulseCtrl.stop();
+      setState(() { _phase = -1; _status = 'Camera Unavailable'; _subStatus = 'Please allow camera permission and retry.'; });
+      return;
+    } else {
+      // Web: hard reject — real enrollment requires camera
+      if (!mounted) return;
+      _scanLineCtrl.stop();
+      _pulseCtrl.stop();
+      setState(() { _phase = -1; _status = 'Not Supported'; _subStatus = 'Face enrollment requires a native device camera.'; });
+      return;
     }
 
     await Future.delayed(const Duration(milliseconds: 1000));
     if (!mounted) return;
 
-    setState(() { _phase = 3; _status = 'Processing face data...'; _subStatus = 'Encrypting and storing biometric data'; });
+    setState(() { _phase = 3; _status = 'Processing face data...'; _subStatus = 'Extracting AI face embedding with MobileFaceNet'; });
 
     try {
-      FaceEnrollResult result;
-
-      if (imagePath != null && !kIsWeb) {
-        // Real ML Kit enrollment
-        result = await BiometricService.enrollFace(imagePath: imagePath, userName: 'Ahmad Razif');
-      } else {
-        // Mock enrollment for web/testing — store mock data via SharedPreferences directly
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('enrolled_face_landmarks', '{"leftEye":{"x":0.35,"y":0.3},"rightEye":{"x":0.65,"y":0.3},"noseBase":{"x":0.5,"y":0.45}}');
-        await prefs.setString('enrolled_face_timestamp', DateTime.now().toIso8601String());
-        await prefs.setString('enrolled_face_name', 'Ahmad Razif');
-        await prefs.setString('enrolled_face_signature', 'mock_signature');
-        result = FaceEnrollResult(success: true, message: 'Face enrolled (mock mode)', landmarkCount: 3);
-      }
+      final result = await BiometricService.enrollFace(imagePath: imagePath!, userName: 'Ahmad Razif');
 
       if (!mounted) return;
 

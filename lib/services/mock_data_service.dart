@@ -102,6 +102,12 @@ class MockDataService {
       longitude: 107.037861,
       radiusMeters: 700.0,
     ),
+    GeofenceLocation(
+      name: 'KFC',
+      latitude: 2.933014,
+      longitude: 101.638596,
+      radiusMeters: 700.0,
+    ),
   ];
 }
 
