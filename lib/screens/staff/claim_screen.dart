@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -16,8 +17,6 @@ class ClaimScreen extends StatefulWidget {
 
 class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStateMixin {
   bool _isScanning = false;
-  bool _scanComplete = false;
-  ReceiptData? _ocrData;
   late AnimationController _scanCtrl;
   late Animation<double> _scanAnim;
 
@@ -55,7 +54,8 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
     );
     
     if (result != null && mounted) {
-      setState(() { _scanComplete = true; _ocrData = result; });
+      // Auto-open manual input sheet with prefilled data and image
+      _showManualInputSheet(context, prefilledData: result);
     }
   }
 
@@ -75,9 +75,7 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
         _scannerArea(),
         const SizedBox(height: 16),
         _manualInputBtn(context),
-        const SizedBox(height: 20),
-        if (_scanComplete) _ocrResult(),
-        if (_scanComplete) const SizedBox(height: 20),
+        const SizedBox(height: 24),
         Text('Claim History', style: GoogleFonts.poppins(color: onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
         const SizedBox(height: 14),
         AnimationLimiter(child: Column(children: List.generate(myClaims.length, (i) =>
@@ -107,7 +105,7 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
             child: Container(height: 2, decoration: BoxDecoration(
               gradient: LinearGradient(colors: [Colors.transparent, const Color(0xFFF59E0B).withOpacity(0.8), Colors.transparent]),
               boxShadow: [BoxShadow(color: const Color(0xFFF59E0B).withOpacity(0.3), blurRadius: 10, spreadRadius: 2)])))),
-        if (!_isScanning && !_scanComplete) Positioned.fill(child: Material(color: Colors.transparent, child: InkWell(borderRadius: BorderRadius.circular(20), onTap: _startScan))),
+        if (!_isScanning) Positioned.fill(child: Material(color: Colors.transparent, child: InkWell(borderRadius: BorderRadius.circular(20), onTap: _startScan))),
       ]))));
   }
 
@@ -128,70 +126,117 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
     ));
   }
 
-  void _showManualInputSheet(BuildContext ctx) {
+  void _showManualInputSheet(BuildContext ctx, {ReceiptData? prefilledData}) {
+    if (prefilledData != null) {
+      _targetCtrl.text = prefilledData.merchant == 'Unknown Merchant' ? '' : prefilledData.merchant;
+      _amountCtrl.text = prefilledData.amount > 0 ? prefilledData.amount.toStringAsFixed(2) : '';
+      if (prefilledData.category != 'Other' && _categories.contains(prefilledData.category)) {
+        _selectedCategory = prefilledData.category;
+      }
+      try {
+        _selectedDate = DateFormat('yyyy-MM-dd').parse(prefilledData.date);
+      } catch (_) {}
+    } else {
+      _targetCtrl.clear();
+      _reasonCtrl.clear();
+      _amountCtrl.clear();
+      _selectedDate = null;
+      _selectedCategory = 'Travel';
+    }
+
+    final imagePath = prefilledData?.imagePath;
+
     showModalBottomSheet(
       context: ctx, isScrollControlled: true, backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(builder: (context, setModalState) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        final onSurface = Theme.of(context).colorScheme.onSurface;
-        final onSurfaceVar = Theme.of(context).colorScheme.onSurfaceVariant;
-        final outlineColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
-        final fieldBg = isDark ? const Color(0xFF1E293B) : Colors.white.withOpacity(0.8);
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.95, // Makes the sheet almost full-screen
+        child: StatefulBuilder(builder: (context, setModalState) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final onSurface = Theme.of(context).colorScheme.onSurface;
+          final onSurfaceVar = Theme.of(context).colorScheme.onSurfaceVariant;
+          final outlineColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+          final fieldBg = isDark ? const Color(0xFF1E293B) : Colors.white.withOpacity(0.8);
 
-        return Container(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          decoration: BoxDecoration(color: isDark ? const Color(0xFF0F172A) : Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(32))),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: onSurfaceVar.withOpacity(0.3), borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 24),
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Manual Claim Input', style: GoogleFonts.poppins(color: onSurface, fontSize: 20, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 20),
-              _inputField('Purpose / Merchant', _targetCtrl, Icons.store, isDark, fieldBg, outlineColor),
+          return Container(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            decoration: BoxDecoration(color: isDark ? const Color(0xFF0F172A) : Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(32))),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
               const SizedBox(height: 12),
-              _inputField('Reason', _reasonCtrl, Icons.description, isDark, fieldBg, outlineColor, maxLines: 2),
-              const SizedBox(height: 12),
-              Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
-                child: DropdownButtonHideUnderline(child: DropdownButton<String>(
-                  value: _selectedCategory, isExpanded: true, dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-                  style: GoogleFonts.poppins(color: onSurface, fontSize: 14),
-                  icon: Icon(Icons.keyboard_arrow_down, color: onSurfaceVar),
-                  items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: onSurface)))).toList(),
-                  onChanged: (v) => setModalState(() => _selectedCategory = v!),
-                ))),
-              const SizedBox(height: 12),
-              GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now().subtract(const Duration(days: 90)), lastDate: DateTime.now());
-                  if (picked != null) setModalState(() => _selectedDate = picked);
-                },
-                child: Container(padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
-                  child: Row(children: [
-                    Icon(Icons.calendar_today, color: const Color(0xFFF59E0B), size: 20), const SizedBox(width: 12),
-                    Text(_selectedDate != null ? DateFormat('dd MMM yyyy').format(_selectedDate!) : 'Select transaction date',
-                      style: GoogleFonts.poppins(color: _selectedDate != null ? onSurface : onSurfaceVar, fontSize: 14)),
-                  ])),
-              ),
-              const SizedBox(height: 12),
-              _inputField('Amount (RM)', _amountCtrl, Icons.payments, isDark, fieldBg, outlineColor, keyboardType: TextInputType.number),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: onSurfaceVar.withOpacity(0.3), borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 24),
-              SizedBox(width: double.infinity, height: 56, child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Claim submitted manually!', style: GoogleFonts.poppins(color: Colors.white)), backgroundColor: const Color(0xFF10B981), behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
-                child: Ink(decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: const Color(0xFF10B981), boxShadow: [BoxShadow(color: const Color(0xFF10B981).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))]),
-                  child: Container(alignment: Alignment.center, child: Text('Submit Claim', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)))),
-              )),
-              const SizedBox(height: 40),
-            ])),
-          ]),
-        );
-      }),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(prefilledData != null ? 'Review Claim Details' : 'Manual Claim Input', style: GoogleFonts.poppins(color: onSurface, fontSize: 20, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 20),
+                    
+                    if (imagePath != null) ...[
+                      Text('Receipt Attachment', style: GoogleFonts.poppins(color: onSurfaceVar, fontSize: 14)),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 200,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: outlineColor),
+                          image: DecorationImage(
+                            image: FileImage(File(imagePath)),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+
+                    _inputField('Purpose / Merchant', _targetCtrl, Icons.store, isDark, fieldBg, outlineColor),
+                    const SizedBox(height: 12),
+                    _inputField('Reason', _reasonCtrl, Icons.description, isDark, fieldBg, outlineColor, maxLines: 2),
+                    const SizedBox(height: 12),
+                    Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
+                      child: DropdownButtonHideUnderline(child: DropdownButton<String>(
+                        value: _selectedCategory, isExpanded: true, dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                        style: GoogleFonts.poppins(color: onSurface, fontSize: 14),
+                        icon: Icon(Icons.keyboard_arrow_down, color: onSurfaceVar),
+                        items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: onSurface)))).toList(),
+                        onChanged: (v) => setModalState(() => _selectedCategory = v!),
+                      ))),
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(context: context, initialDate: _selectedDate ?? DateTime.now(), firstDate: DateTime.now().subtract(const Duration(days: 90)), lastDate: DateTime.now());
+                        if (picked != null) setModalState(() => _selectedDate = picked);
+                      },
+                      child: Container(padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: fieldBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: outlineColor)),
+                        child: Row(children: [
+                          Icon(Icons.calendar_today, color: const Color(0xFFF59E0B), size: 20), const SizedBox(width: 12),
+                          Text(_selectedDate != null ? DateFormat('dd MMM yyyy').format(_selectedDate!) : 'Select transaction date',
+                            style: GoogleFonts.poppins(color: _selectedDate != null ? onSurface : onSurfaceVar, fontSize: 14)),
+                        ])),
+                    ),
+                    const SizedBox(height: 12),
+                    _inputField('Amount (RM)', _amountCtrl, Icons.payments, isDark, fieldBg, outlineColor, keyboardType: TextInputType.number),
+                    const SizedBox(height: 24),
+                    SizedBox(width: double.infinity, height: 56, child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Claim submitted successfully!', style: GoogleFonts.poppins(color: Colors.white)), backgroundColor: const Color(0xFF10B981), behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
+                      },
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
+                      child: Ink(decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: const Color(0xFF10B981), boxShadow: [BoxShadow(color: const Color(0xFF10B981).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))]),
+                        child: Container(alignment: Alignment.center, child: Text('Submit Claim', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)))),
+                    )),
+                    const SizedBox(height: 40),
+                  ]),
+                ),
+              ),
+            ]),
+          );
+        }),
+      ),
     );
   }
 
@@ -203,38 +248,7 @@ class _ClaimScreenState extends State<ClaimScreen> with SingleTickerProviderStat
         decoration: InputDecoration(prefixIcon: Icon(icon, color: const Color(0xFF06B6D4), size: 20), hintText: label, hintStyle: GoogleFonts.poppins(color: onSurfaceVar, fontSize: 14), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12))));
   }
 
-  Widget _ocrResult() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return GlassCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFF10B981).withOpacity(0.1)),
-          child: const Icon(Icons.check, color: Color(0xFF10B981), size: 20)),
-        const SizedBox(width: 12),
-        Text('Scan Result', style: GoogleFonts.poppins(color: const Color(0xFF059669), fontSize: 16, fontWeight: FontWeight.w600)),
-      ]),
-      const SizedBox(height: 16),
-      _ocrRow('Date', _ocrData?.date ?? '2026-04-20', isDark), _ocrRow('Amount', 'RM ${_ocrData?.amount.toStringAsFixed(2) ?? '245.50'}', isDark), _ocrRow('Merchant', _ocrData?.merchant ?? 'Grab Malaysia', isDark), _ocrRow('Category', _ocrData?.category ?? 'Travel', isDark),
-      const SizedBox(height: 16),
-      SizedBox(width: double.infinity, height: 48, child: ElevatedButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Claim submitted!', style: GoogleFonts.poppins(color: Colors.white)), backgroundColor: const Color(0xFF10B981), behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
-          setState(() => _scanComplete = false);
-        },
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
-        child: Ink(decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24), 
-            gradient: isDark ? const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF06B6D4)]) : null,
-            color: isDark ? null : const Color(0xFF0F172A),
-          ),
-          child: Container(alignment: Alignment.center, child: Text('Submit Claim', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)))),
-      )),
-    ]));
-  }
-
-  Widget _ocrRow(String l, String v, bool isDark) => Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-    Text(l, style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 14)),
-    Text(v, style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.w600)),
-  ]));
+  // _ocrResult widget removed since we now auto-open the full form
 
   Widget _claimCard(claim) {
     final isDark = Theme.of(context).brightness == Brightness.dark;

@@ -108,6 +108,12 @@ class MockDataService {
       longitude: 101.638596,
       radiusMeters: 700.0,
     ),
+    GeofenceLocation(
+      name: 'Brainy Bunch International School and Headquarters',
+      latitude: 2.905263,
+      longitude: 101.625121,
+      radiusMeters: 700.0,
+    ),
   ];
 }
 

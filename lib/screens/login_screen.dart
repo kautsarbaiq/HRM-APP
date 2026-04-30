@@ -10,7 +10,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
-  final _emailCtrl = TextEditingController(text: 'ahmad.razif@syarikat.com.my');
+  final _emailCtrl = TextEditingController(text: 'testing@gmail.com');
   final _passCtrl = TextEditingController(text: '••••••••');
   bool _obscure = true;
   bool _isBioScanning = false;

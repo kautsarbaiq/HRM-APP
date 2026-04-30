@@ -48,12 +48,8 @@ class _OcrScannerScreenState extends State<OcrScannerScreen> with TickerProvider
       return;
     }
 
-    if (result.amount == 0 && result.merchant == 'Unknown Merchant') {
-      setState(() { _isScanning = false; _errorMessage = 'Could not extract data. Try a clearer image.'; });
-      _beamCtrl.stop();
-      return;
-    }
-
+    // Even if extraction is poor, proceed to show the result so the user can manually 
+    // correct it and the image is still attached.
     _beamCtrl.stop();
     setState(() { _isScanning = false; _result = result; });
     _resultCtrl.forward();
