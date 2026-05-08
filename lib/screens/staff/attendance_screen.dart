@@ -72,6 +72,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
 
   Future<void> _initGeofence() async {
     setState(() => _isLoadingLocation = true);
+    
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled && mounted) {
+      _showGpsWarningDialog();
+    }
+
     final result = await GeofenceService.checkGeofence();
 
     if (!mounted) return;
@@ -231,6 +237,67 @@ class _AttendanceScreenState extends State<AttendanceScreen> with TickerProvider
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ));
     }
+  }
+
+  void _showGpsWarningDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B).withOpacity(0.95) : Colors.white.withOpacity(0.95),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : const Color(0xFFE2E8F0)),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 30, offset: const Offset(0, 10))],
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 64, height: 64,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFF59E0B).withOpacity(0.1),
+              ),
+              child: const Icon(Icons.location_disabled, color: Color(0xFFF59E0B), size: 32),
+            ),
+            const SizedBox(height: 20),
+            Text('Enable GPS for Accuracy', textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 8),
+            Text(
+              'Your mobile location service is off. The system will try to estimate your location, but it may show "Out of Range". Please turn on GPS for accurate attendance.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 13, height: 1.5),
+            ),
+            const SizedBox(height: 24),
+            Row(children: [
+              Expanded(child: SizedBox(height: 46, child: OutlinedButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Geolocator.openLocationSettings();
+                },
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                child: Text('Settings', style: GoogleFonts.poppins(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+              ))),
+              const SizedBox(width: 12),
+              Expanded(child: SizedBox(height: 46, child: ElevatedButton(
+                onPressed: () => Navigator.pop(ctx),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF06B6D4), foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), elevation: 0,
+                ),
+                child: Text('Continue', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+              ))),
+            ]),
+          ]),
+        ),
+      ),
+    );
   }
 
   void _showOutOfRangeDialog() {

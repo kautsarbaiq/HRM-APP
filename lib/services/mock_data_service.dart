@@ -114,6 +114,13 @@ class MockDataService {
       longitude: 101.625121,
       radiusMeters: 700.0,
     ),
+
+    GeofenceLocation(
+      name: 'iSHIN Fine Dine',
+      latitude: 3.019954,
+      longitude: 101.622985,
+      radiusMeters: 700.0,
+    ),
   ];
 }
 
